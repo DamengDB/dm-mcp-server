@@ -1,0 +1,32 @@
+.git
+.cursor
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+.venv
+venv
+env
+.env.*
+build/
+dist/
+*.egg-info/
+.specstory/
+.vscode/
+examples/
+.cursorindexingignore
+pytest.ini
+docker-compose.yml
+Dockerfile
+
+# 不需要进入构建上下文的内容
+tests/
+docs/
+scripts/
+# 运行时生成/持久化数据（以 volume 形式在运行时挂载）
+data/
+logs/
+metrics/
+
+# 日志文件
+*.log
+

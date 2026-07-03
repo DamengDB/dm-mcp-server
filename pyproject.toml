@@ -1,0 +1,158 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+dependencies = [
+    # Core MCP dependencies
+    "mcp>=1.8.0,<2.0.0",
+    # 达梦数据库依赖
+    "dmasync>=1.0.0",
+    "dmpython>=2.5.30",
+    # Configuration and serialization
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    # dmAsync 运行时依赖
+    "async-timeout>=5.0.1",
+    "python-dotenv>=1.0.0",
+    # Security and authentication
+    "cryptography>=41.0.0",
+    "passlib>=1.7.0",
+    # Monitoring and logging
+    "prometheus-client>=0.19.0",
+    # HTTP and networking
+    "httpx>=0.26.0",
+    "uvicorn>=0.25.0",
+    "starlette>=0.27.0",
+    # Development utilities
+    "loguru>=0.7.3",
+    "authlib>=1.6.6",
+    "itsdangerous>=2.2.0",
+    "redis>=7.1.0",
+    "parse>=1.20.2",
+    "sqlalchemy>=2.0.45",
+    "aiosqlite>=0.19.0",
+    "dmsqlalchemy>=2.0.11",
+    "pymysql>=1.1.0",
+    "psycopg2-binary>=2.9.0",
+]
+name = "dm-mcp-server"
+version = "0.1.0"
+description = "达梦数据库 MCP 服务核心框架库"
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = ["dm8", "mcp", "model-context-protocol", "database"]
+authors = [
+    { name = "李鑫", email = "lixin@dameng.com" },
+    { name = "向宜航", email = "xiangyihang@dameng.com" },
+]
+
+[project.scripts]
+dm-mcp-server = "main:main"
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",
+
+    # Code quality
+    "ruff>=0.1.0",
+    "black>=23.12.0",
+    "isort>=5.13.0",
+    "flake8>=7.0.0",
+    "mypy>=1.8.0",
+    "bandit>=1.7.0",
+    "safety>=2.3.0",
+
+    # Documentation
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "myst-parser>=2.0.0",
+
+    # Development tools
+    "pre-commit>=3.6.0",
+    "tox>=4.11.0",
+]
+
+performance = [
+    "uvloop>=0.19.0",  # High-performance event loop
+    "orjson>=3.9.0",   # Fast JSON serialization
+    "cchardet>=2.1.0", # Fast character encoding detection
+]
+
+monitoring = [
+    "prometheus-client>=0.19.0",
+    "grafana-client>=3.5.0",
+    "jaeger-client>=4.8.0",
+    "opentelemetry-api>=1.21.0",
+    "opentelemetry-sdk>=1.21.0",
+]
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dm_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/main.py" = "main.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/dm_mcp", "README.md"]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["dm_mcp_server"]
+known_third_party = ["mcp", "dmPython", "dmAsync", "pydantic", "click"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+norecursedirs = [
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "__pycache__",
+    "*.egg-info",
+    "examples",
+]
+addopts = ["-v", "--tb=short", "--ignore=tests/examples"]
+markers = [
+    "unit: 单元测试",
+    "integration: 集成测试",
+    "slow: 运行较慢的测试",
+    "asyncio: 异步测试",
+    "auth: 认证相关测试",
+    "database: 数据库相关测试",
+    "cache: 缓存相关测试",
+    "mcp: MCP 协议相关测试",
+]
+asyncio_mode = "auto"

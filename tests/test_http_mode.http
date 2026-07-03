@@ -1,0 +1,205 @@
+@baseUrl = http://localhost:18082
+# ==============================================================================
+# ⚠️ 重要提示：手动步骤
+# 1. 先执行第1个请求 (GET /mcp)
+# 2. 在响应窗口中保持连接打开，观察返回的数据
+# 3. 找到类似 "data: /mcp?sessionId=xxxx..." 的行
+# 4. 复制那个 ID 替换下面的 <PASTE_SESSION_ID_HERE>
+# ==============================================================================
+@sessionId = a9db74a585ad4e7f90fe96468f0409eb
+
+# 拼接完整的 POST URL
+@postUrl = {{baseUrl}}/mcp/messages?sessionId={{sessionId}}
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMjQzNjA1ODU5MzctbnM1cnY5ajkzZjJobmg3c3Q5a2IwYWRlczRiaXZocm0uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxMjQzNjA1ODU5MzctbnM1cnY5ajkzZjJobmg3c3Q5a2IwYWRlczRiaXZocm0uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDkyMjYwODYxMjE2NDIwNTU5NDQiLCJlbWFpbCI6ImRtcHIuaW50ZXJuYWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJURnFiN1hjT0QzeWZET1hLX0VLM3JRIiwibm9uY2UiOiJJa2RCVmNBcWowd1E5NlJ1TDRINiIsIm5hbWUiOiJkbXByIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0x5aWQ3azRlMFBrSVZNZVdjNm5sOGNDV3RYYkdZYzZRNDg2Qjgtak9fakUxT3dqdz1zOTYtYyIsImdpdmVuX25hbWUiOiJkbXByIiwiaWF0IjoxNzY3OTY0MjYyLCJleHAiOjE3Njc5Njc4NjJ9.vFVeD-fGyYerT3jSfj9z3KgD2xvnFZGQT6GU1J0rC2U
+
+### 1. 建立 SSE 连接 (获取 Session ID)
+# 发送此请求后，请不要关闭连接。
+# 查看 Response 面板，找到 "event: endpoint"，复制下一行 data 中的 sessionId。
+GET {{baseUrl}}/mcp
+Accept: text/event-stream
+Cache-Control: no-cache
+
+### 2. 初始化握手 (Initialize)
+# 必须先发送此请求，否则后续调用会报错
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "http-client",
+      "version": "1.0"
+    }
+  }
+}
+
+### 3. 确认初始化 (Initialized Notification)
+# 握手完成的确认消息
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized"
+}
+
+### 4. 列出可用工具 (List Tools)
+# 检查 calculate_sum 是否在列表中
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list"
+}
+
+### 5. 调用工具 (Call Tool - calculate_sum)
+# 测试两数之和
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "calculate_sum",
+    "arguments": {
+      "a": 50,
+      "b": 100
+    }
+  }
+}
+
+### 6. 调用工具 (Call Tool - calculate_sum)
+# 测试两数之积
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "multiply_with_bias",
+    "arguments": {
+      "a": 2,
+      "b": 3
+    }
+  }
+}
+
+### 7. (可选) Ping
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "ping"
+}
+
+
+###
+GET {{baseUrl}}/api/v1/health
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET {{baseUrl}}/api/v1/metrics
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+
+### 8. 列出可用资源 (List Resources)
+# 查看所有可用的资源
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "resources/list"
+}
+
+### 9. 列出可用资源模板 (List Resource Templates)
+# 查看所有可用的资源
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "resources/templates/list"
+}
+
+### 9. 读取资源 (Read Resource - 用户信息)
+# 读取用户的信息
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "resources/read",
+  "params": {
+    "uri": "dameng://user/1"
+  }
+}
+
+
+### 10. 列出可用提示词 (List Prompts)
+# 查看所有可用的提示词模板
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "prompts/list"
+}
+
+### 11. 获取提示词 (Get Prompt - greeting)
+# 生成 Alice 的问候语
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "prompts/get",
+  "params": {
+    "name": "greeting",
+    "arguments": {
+      "name": "Alice"
+    }
+  }
+}

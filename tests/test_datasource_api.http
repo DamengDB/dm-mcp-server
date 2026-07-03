@@ -1,0 +1,261 @@
+### 数据源管理 API 测试
+### 注意：需要先通过 OAuth 认证
+
+@baseUrl = http://localhost:18082/api/v1
+@token = YOUR_AUTH_TOKEN
+
+###############################################
+# 1. 获取所有数据源
+###############################################
+
+### 列出所有数据源
+GET {{baseUrl}}/datasources
+Authorization: Bearer {{token}}
+
+###############################################
+# 2. 获取单个数据源
+###############################################
+
+### 获取 primary 数据源
+GET {{baseUrl}}/datasources/primary
+Authorization: Bearer {{token}}
+
+###############################################
+# 3. 测试连接
+###############################################
+
+### 测试新配置
+POST {{baseUrl}}/datasources/test
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica3",
+  "role": "primary",
+  "host": "localhost",
+  "port": 5236,
+  "user": "SYSDBA",
+  "password": "123456789",
+  "minsize": 1,
+  "maxsize": 10
+}
+
+### 测试已有数据源
+POST {{baseUrl}}/datasources/primary/test
+Authorization: Bearer {{token}}
+
+###############################################
+# 4. 添加数据源
+###############################################
+
+### 添加 replica1（禁用状态）
+POST {{baseUrl}}/datasources
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica1",
+  "enabled": false,
+  "role": "replica",
+  "read_only": true,
+  "host": "127.0.0.1",
+  "port": 5237,
+  "user": "SYSDBA",
+  "password": "Abc123456",
+  "minsize": 1,
+  "maxsize": 10,
+  "timeout": 30.0,
+  "weight": 3
+}
+
+### 添加 replica2（直接启用）
+POST {{baseUrl}}/datasources
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica2",
+  "enabled": true,
+  "role": "replica",
+  "read_only": true,
+  "dsn": "127.0.0.1:5238",
+  "user": "SYSDBA",
+  "password": "Abc123456",
+  "minsize": 1,
+  "maxsize": 10,
+  "timeout": 30.0,
+  "weight": 1
+}
+
+###############################################
+# 5. 启用/禁用数据源
+###############################################
+
+### 启用 replica1
+POST {{baseUrl}}/datasources/replica1/enable
+Authorization: Bearer {{token}}
+
+### 禁用 replica1
+POST {{baseUrl}}/datasources/replica1/disable
+Authorization: Bearer {{token}}
+
+###############################################
+# 6. 更新数据源（自动 reload）
+###############################################
+
+### 更新 replica1 配置
+PUT {{baseUrl}}/datasources/replica1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica1",
+  "enabled": true,
+  "role": "replica",
+  "read_only": true,
+  "host": "127.0.0.1",
+  "port": 5236,
+  "user": "SYSDBA",
+  "password": "123456789",
+  "minsize": 2,
+  "maxsize": 20,
+  "timeout": 30.0,
+  "weight": 5
+}
+
+###############################################
+# 7. 手动 Reload
+###############################################
+
+### 重载单个数据源
+POST {{baseUrl}}/datasources/replica1/reload
+Authorization: Bearer {{token}}
+
+### 重载所有数据源
+POST {{baseUrl}}/datasources/reload
+Authorization: Bearer {{token}}
+
+###############################################
+# 8. 查看连接池状态
+###############################################
+
+### 获取所有数据源的连接池状态
+GET {{baseUrl}}/datasources/status
+Authorization: Bearer {{token}}
+
+###############################################
+# 9. 删除数据源
+###############################################
+
+### 删除 replica2
+DELETE {{baseUrl}}/datasources/replica2
+Authorization: Bearer {{token}}
+
+### 删除 replica1
+DELETE {{baseUrl}}/datasources/replica1
+Authorization: Bearer {{token}}
+
+###############################################
+# 10. 错误场景测试
+###############################################
+
+### 删除 primary 数据源（现在允许删除，即使它是最后一个 primary）
+DELETE {{baseUrl}}/datasources/primary
+Authorization: Bearer {{token}}
+
+### 尝试添加重名数据源（应该失败）
+POST {{baseUrl}}/datasources
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "primary",
+  "enabled": true,
+  "role": "primary",
+  "host": "localhost",
+  "port": 5236,
+  "user": "SYSDBA",
+  "password": "SYSDBA"
+}
+
+### 获取不存在的数据源（应该 404）
+GET {{baseUrl}}/datasources/not_exists
+Authorization: Bearer {{token}}
+
+###############################################
+# 11. 完整流程测试
+###############################################
+
+### 步骤 1: 测试连接
+POST {{baseUrl}}/datasources/test
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica_test",
+  "role": "replica",
+  "host": "127.0.0.1",
+  "port": 5237,
+  "user": "SYSDBA",
+  "password": "Abc123456",
+  "minsize": 1,
+  "maxsize": 10
+}
+
+### 步骤 2: 添加数据源（禁用）
+POST {{baseUrl}}/datasources
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica_test",
+  "enabled": false,
+  "role": "replica",
+  "read_only": true,
+  "host": "127.0.0.1",
+  "port": 5237,
+  "user": "SYSDBA",
+  "password": "Abc123456",
+  "minsize": 1,
+  "maxsize": 10,
+  "weight": 2
+}
+
+### 步骤 3: 查看数据源
+GET {{baseUrl}}/datasources/replica_test
+Authorization: Bearer {{token}}
+
+### 步骤 4: 启用数据源
+POST {{baseUrl}}/datasources/replica_test/enable
+Authorization: Bearer {{token}}
+
+### 步骤 5: 查看状态
+GET {{baseUrl}}/datasources/status
+Authorization: Bearer {{token}}
+
+### 步骤 6: 修改配置（自动 reload）
+PUT {{baseUrl}}/datasources/replica_test
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "replica_test",
+  "enabled": true,
+  "role": "replica",
+  "read_only": true,
+  "host": "127.0.0.1",
+  "port": 5237,
+  "user": "SYSDBA",
+  "password": "Abc123456",
+  "minsize": 2,
+  "maxsize": 15,
+  "weight": 5
+}
+
+### 步骤 7: 禁用数据源
+POST {{baseUrl}}/datasources/replica_test/disable
+Authorization: Bearer {{token}}
+
+### 步骤 8: 删除数据源
+DELETE {{baseUrl}}/datasources/replica_test
+Authorization: Bearer {{token}}

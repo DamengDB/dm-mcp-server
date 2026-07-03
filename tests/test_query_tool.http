@@ -1,0 +1,36 @@
+# @baseUrl = http://10.32.31.123:18082/dm-mcp
+@baseUrl = http://tprd.dameng.com/dm-mcp
+# ==============================================================================
+# ⚠️ 重要提示：手动步骤
+# 1. 先执行第1个请求 (GET /mcp)
+# 2. 在响应窗口中保持连接打开，观察返回的数据
+# 3. 找到类似 "data: /mcp?sessionId=xxxx..." 的行
+# 4. 复制那个 ID 替换下面的 <PASTE_SESSION_ID_HERE>
+# ==============================================================================
+@sessionId = a9db74a585ad4e7f90fe96468f0409eb
+
+# 拼接完整的 POST URL
+@postUrl = {{baseUrl}}/mcp/messages
+@authToken = DVYPkDEm4VEJ32v0awACbLIH0Ay1DAOlB5mQW1jc0cs
+
+
+### 1. 建立 SSE 连接 (获取 Session ID)
+# 发送此请求后，请不要关闭连接。
+# 查看 Response 面板，找到 "event: endpoint"，复制下一行 data 中的 sessionId。
+POST {{postUrl}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Token {{authToken}}
+
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "db.query",
+    "arguments": {
+        "sql": "SELECT * FROM SYS.V$PKGPROCS LIMIT 10;",
+        "source": "test"
+    }
+  }
+}

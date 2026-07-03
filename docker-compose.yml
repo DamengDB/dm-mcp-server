@@ -1,0 +1,20 @@
+services:
+  dm-mcp-server:
+    image: dameng/dm-mcp-server:0.1.0
+    ports:
+      - "18081:18081"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+      - ./metrics:/app/metrics
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:18081/dm-mcp/api/v1/config || exit 1",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 30

@@ -1,0 +1,8 @@
+@apiAuthUrl = http://localhost:18082/api/v1/auth/google/login
+
+# 此链接会跳转到谷歌登录页面，建议浏览器打开
+
+GET {{apiAuthUrl}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
