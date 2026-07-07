@@ -4,7 +4,7 @@
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from dm_mcp.core.exceptions import ServiceCircularDependencyError, ServiceNotFoundError
 
@@ -37,8 +37,8 @@ class ServiceRegistry:
             settings: 全局配置
         """
         self.settings = settings
-        self.factories: Dict[str, ServiceFactory] = {}
-        self.instances: Dict[str, Any] = {}
+        self.factories: dict[str, ServiceFactory] = {}
+        self.instances: dict[str, Any] = {}
         self._building: set[str] = set()
 
     def register_factory(self, factory: ServiceFactory) -> None:
@@ -59,7 +59,7 @@ class ServiceRegistry:
             f"优先级: {metadata.priority})"
         )
 
-    def register_factories(self, factories: List[ServiceFactory]) -> None:
+    def register_factories(self, factories: list[ServiceFactory]) -> None:
         """批量注册服务工厂
 
         Args:
@@ -120,7 +120,7 @@ class ServiceRegistry:
 
         return instance
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """获取所有已启用的服务实例
 
         按依赖顺序创建所有服务（拓扑排序）。
@@ -177,7 +177,7 @@ class ServiceRegistry:
         self.unload_service(name)
         return self.get_service(name)
 
-    def list_services(self) -> List[ServiceMetadata]:
+    def list_services(self) -> list[ServiceMetadata]:
         """列出所有已注册的服务
 
         Returns:
@@ -185,7 +185,7 @@ class ServiceRegistry:
         """
         return [factory.metadata() for factory in self.factories.values()]
 
-    def get_service_info(self, name: str) -> Optional[ServiceMetadata]:
+    def get_service_info(self, name: str) -> ServiceMetadata | None:
         """获取服务信息
 
         Args:
@@ -240,7 +240,7 @@ class ServiceRegistry:
             # 清除构建标记
             self._building.discard(name)
 
-    def _topological_sort(self) -> List[str]:
+    def _topological_sort(self) -> list[str]:
         """拓扑排序（解决依赖顺序）
 
         使用 Kahn 算法进行拓扑排序。

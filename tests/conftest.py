@@ -6,7 +6,7 @@
 import asyncio
 import sys
 from pathlib import Path
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator, Generator, TypeVar
 from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
@@ -19,16 +19,12 @@ src_path = (project_root / "src").resolve()
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-from dm_mcp.settings import Settings
-from dm_mcp.settings.database_config import DatabaseConfig
-from dm_mcp.settings.datasource_config import DataSourcesConfig
-from dm_mcp.settings.jwt_config import JwtConfig
-from dm_mcp.settings.logging_config import LoggingConfig
-from dm_mcp.settings.metrics_config import MetricsConfig
-from dm_mcp.settings.oauth_config import OAuthConfig
-from dm_mcp.settings.pool_config import DmPoolConfig
-from dm_mcp.settings.server_config import ServerConfig
-from dm_mcp.settings.token_auth_config import TokenAuthConfig
+from dm_mcp.infra.config import Settings
+from dm_mcp.infra.config.database_config import DatabaseConfig
+from dm_mcp.infra.config.logging_config import LoggingConfig
+from dm_mcp.infra.config.metrics_config import MetricsConfig
+from dm_mcp.infra.persistence.pool_config import DmPoolConfig
+from dm_mcp.infra.config.server_config import ServerConfig
 
 
 @pytest.fixture(scope="session")
@@ -56,22 +52,16 @@ def mock_settings(monkeypatch) -> Settings:
         # 使用 _env_file=None 来禁用环境变量和命令行参数解析
         settings = Settings(
             _env_file=None,
+            app_secret=SecretStr("test-app-secret-for-testing-only"),
             server=ServerConfig(),
             database=DatabaseConfig(),
             metrics=MetricsConfig(),
             logging=LoggingConfig(
                 level="DEBUG",
-                log_dir=Path("tests/logs"),
+                log_dir=Path("logs"),
                 enable_file=False,  # 测试时禁用文件日志
             ),
-            oauth=OAuthConfig(),
             pool=DmPoolConfig(),
-            datasources=DataSourcesConfig(),
-            token_auth=TokenAuthConfig(),
-            jwt=JwtConfig(
-                secret=SecretStr("test-secret-key-for-testing-only"),
-                token_expire_seconds=3600,
-            ),
         )
         return settings
     finally:
@@ -99,10 +89,8 @@ def mock_settings_attrs():
     mock.metrics.enabled = False
     mock.database.url = "dm://localhost:5236"
     mock.database.db_type = "dm"
-    mock.jwt.secret = "test-secret"
-    mock.oauth.enabled = False
-    mock.oauth.providers = {}
-    mock.token_auth.enabled = False
+    mock.app_secret = MagicMock()
+    mock.app_secret.get_secret_value.return_value = "test-app-secret"
     mock.pool.default_source = "primary"
     mock.pool.max_size = 10
     mock.pool.min_size = 1
@@ -140,6 +128,16 @@ def mock_datasource_service():
     service.shutdown = AsyncMock()
     service.get_data_source = Mock(return_value=None)
     service.list_data_sources = Mock(return_value=[])
+    return service
+
+
+@pytest.fixture
+def mock_mcp_group_service():
+    """创建 Mock MCP 分组服务（MCPService 依赖）。"""
+    service = MagicMock()
+    service.startup = AsyncMock()
+    service.shutdown = AsyncMock()
+    service.assert_paths_exist = AsyncMock()
     return service
 
 
@@ -301,3 +299,70 @@ def mock_async_pool():
     pool.release_connection = AsyncMock()
     pool.health_check = AsyncMock(return_value=True)
     return pool
+
+
+# ============================================================
+# FakeEventService 测试工具(对照 MockDBSession 模式)
+# ============================================================
+from dm_mcp.core.events import Event, PublishResult
+from dm_mcp.infra.messaging.event import EventService
+
+_FE_E = TypeVar("_FE_E", bound=Event)
+
+
+class FakeEventService(EventService):
+    """测试用 EventService
+
+    继承 EventService 保留 subscribe/publish 行为,额外维护 published 列表。
+
+    使用示例:
+        events = FakeEventService()
+        service = SomeService(event_service=events)
+        await service.do_something()
+        events.assert_published(SomeEvent)
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.published: list[Event] = []
+
+    async def publish(self, event: Event) -> PublishResult:
+        self.published.append(event)
+        return await super().publish(event)
+
+    async def publish_strict(self, event: Event) -> PublishResult:
+        self.published.append(event)
+        return await super().publish_strict(event)
+
+    def assert_published(self, event_type: type[_FE_E]) -> _FE_E:
+        """断言发布过指定类型的事件,返回最后一次发布的实例"""
+        for e in reversed(self.published):
+            if isinstance(e, event_type):
+                return e  # type: ignore[return-value]
+        raise AssertionError(
+            f"未发布过 {event_type.__name__} 事件,已发布: "
+            f"{[type(e).__name__ for e in self.published]}"
+        )
+
+    def assert_published_count(self, event_type: type[Event], expected: int) -> None:
+        """断言指定类型事件的发布次数"""
+        actual = sum(1 for e in self.published if isinstance(e, event_type))
+        if actual != expected:
+            raise AssertionError(
+                f"事件 {event_type.__name__} 发布次数不符: "
+                f"期望 {expected},实际 {actual}"
+            )
+
+    def get_events(self) -> list[Event]:
+        """获取所有已发布的事件"""
+        return self.published
+
+    def reset(self) -> None:
+        """清空发布记录"""
+        self.published.clear()
+
+
+@pytest.fixture
+def fake_event_service() -> FakeEventService:
+    """提供一个 FakeEventService 实例,用于断言事件发布"""
+    return FakeEventService()

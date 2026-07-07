@@ -8,7 +8,7 @@ import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 from httpx import ASGITransport, AsyncClient
 
-from dm_mcp.server import MCPServer
+from dm_mcp.app.server import MCPServer
 from tests.conftest import mock_settings
 
 
@@ -321,31 +321,14 @@ class TestMCPServiceProviderWithMiddleware:
 
     async def test_provider_with_middleware_stack(self, mock_settings):
         """测试带中间件栈的 Provider"""
-        from dm_mcp.services.mcp_service import MCPService
         from dm_mcp.core.mcp.middleware import MCPMiddlewareStack
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 验证中间件栈存在
-        assert service.middleaware_stack is not None
-        assert isinstance(service.middleaware_stack, MCPMiddlewareStack)
+        assert service.middleware_stack is not None
+        assert isinstance(service.middleware_stack, MCPMiddlewareStack)
 
         # 添加中间件
         mock_middleware = MagicMock()
@@ -378,28 +361,10 @@ class TestMCPServiceCallbackRegistration:
 
     async def test_callbacks_are_registered(self, mock_settings):
         """测试回调函数已注册"""
-        from dm_mcp.services.mcp_service import MCPService
-        from dm_mcp.core.mcp.middleware import MCPMiddlewareStack
-
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
+        from tests.integration.conftest import make_mcp_service
 
         # 创建服务（这会调用 _setup_handlers）
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 验证 SDK Server 存在
         assert service.sdk_server is not None

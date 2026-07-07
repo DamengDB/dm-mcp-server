@@ -3,6 +3,7 @@
 提供服务管理相关的异常类定义，包括服务未找到、循环依赖等异常。
 """
 
+from dm_mcp.common import messages
 from .base_error import DmMCPError
 
 
@@ -20,15 +21,6 @@ class ServiceError(DmMCPError):
         status_code: int = 500,
         **kwargs,
     ):
-        """初始化服务异常
-
-        Args:
-            message: 错误消息
-            service_name: 服务名称（可选）
-            error_code: 错误码（默认"SERVICE_ERROR"）
-            status_code: HTTP状态码（默认500）
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
             message=message, error_code=error_code, status_code=status_code, **kwargs
         )
@@ -43,14 +35,8 @@ class ServiceNotFoundError(ServiceError):
     """
 
     def __init__(self, service_name: str, **kwargs):
-        """初始化服务未找到异常
-
-        Args:
-            service_name: 服务名称
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
-            message=f"Service '{service_name}' not found",
+            message=messages.MSG_SERVICE_NOT_FOUND.format(service_name=service_name),
             service_name=service_name,
             error_code="SERVICE_NOT_FOUND",
             status_code=404,
@@ -65,16 +51,14 @@ class ServiceCircularDependencyError(ServiceError):
     """
 
     def __init__(self, service_name: str, path: str | None = None, **kwargs):
-        """初始化服务循环依赖异常
-
-        Args:
-            service_name: 服务名称
-            path: 循环依赖路径（可选）
-            **kwargs: 其他参数传递给基类
-        """
-        message = f"Service '{service_name}' circular dependency"
         if path:
-            message += f" with path '{path}'"
+            message = messages.MSG_SERVICE_CIRCULAR_DEPENDENCY_WITH_PATH.format(
+                service_name=service_name, path=path
+            )
+        else:
+            message = messages.MSG_SERVICE_CIRCULAR_DEPENDENCY.format(
+                service_name=service_name
+            )
         super().__init__(
             message=message,
             service_name=service_name,

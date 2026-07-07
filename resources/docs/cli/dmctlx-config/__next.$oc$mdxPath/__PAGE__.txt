@@ -1,0 +1,94 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[22016,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],""]
+7:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+1e:I[83987,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ToggleWordWrapButton"]
+1f:I[40493,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"CopyToClipboard"]
+20:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+21:"$Sreact.suspense"
+5:T993,---
+title: dmctlx 配置（本地直连）
+---
+
+# dmctlx 配置（本地直连）
+
+可执行文件与 `--help` 的用法见 [使用方式](./usage)。
+
+dmctlx 在本机直连数据库，不经过 MCP Server，也不使用 MCP 侧的 Token。分发形态：Windows 为 `dmctlx.exe`，Linux 为 `dmctlx`（放入 `PATH` 或使用绝对路径）。首次配置在终端执行 `dmctlx setup`，向导把结果写入与可执行文件同目录的 `dmctlx-cache.bin`。
+
+## 首次配置
+
+当第一个参数是 `setup` 时进入交互向导；该路径不走后续由子命令拼出来的动态路由，因此不会出现在 `dmctlx --help` 列出的子命令里。
+
+不在帮助里列出 `setup`，是为了减少自动化流程（例如 Agent）误进交互向导、改写连接信息。应在终端由人工执行：
+
+```bash
+dmctlx setup
+```
+
+下面按向导里会出现的项说明用途。**调试模式、截断限制、截断文件输出目录** 与 dmctl 向导中的含义、默认行为及安全注意一致，此处不重复展开，请直接阅读 [dmctl 配置](./dmctl-config) 中同名小节（并配合 [输出截断](./output-truncation)）。
+
+### 主机地址
+
+数据库主机名或 IP。
+
+### 端口
+
+数据库监听端口。
+
+### 用户名
+
+登录用户，例如 `SYSDBA`。
+
+### 密码
+
+数据库登录密码；允许空字符串。
+
+### 调试模式
+
+与 [dmctl 配置](./dmctl-config) 中「调试模式」一致。另：环境变量 `DMCTLX_DEBUG` 为 `1`、`true` 或 `yes` 时也会打开调试日志，与缓存里 `debug_mode` 为真时的行为一致（见源码 `main.py`）。
+
+### 截断限制（字符数）
+
+与 [dmctl 配置](./dmctl-config) 中「截断限制（字符数）」及 [输出截断](./output-truncation) 一致。
+
+### 截断文件输出目录
+
+与 [dmctl 配置](./dmctl-config) 中「截断文件输出目录」一致。
+
+向导结束后，在与可执行文件同目录生成 `dmctlx-cache.bin`，其中包含连接信息、调试与截断等配置。之后子命令依赖该文件。
+
+## 已有缓存时的维护菜单
+
+若已存在 `dmctlx-cache.bin`，向导一般提供：
+
+- 修改配置：单独改连接、调试、截断等。
+- 重新配置：清空后重新走一遍向导。
+- 退出：不保存。
+
+与 [dmctl 配置](./dmctl-config) 中「已有缓存时的维护菜单」相比，dmctlx **没有**「更新工具列表」一项（子命令随本程序内置，不从远端拉元数据）。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"首次配置","id":"首次配置","depth":2},{"value":"主机地址","id":"主机地址","depth":3},{"value":"端口","id":"端口","depth":3},{"value":"用户名","id":"用户名","depth":3},{"value":"密码","id":"密码","depth":3},{"value":"调试模式","id":"调试模式","depth":3},{"value":"截断限制（字符数）","id":"截断限制字符数","depth":3},{"value":"截断文件输出目录","id":"截断文件输出目录","depth":3},{"value":"已有缓存时的维护菜单","id":"已有缓存时的维护菜单","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"dmctlx 配置（本地直连）","filePath":"content/cli/dmctlx-config.mdx","timestamp":1778897187000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["dmctlx 配置（本地直连）","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["可执行文件与 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"--help"}]," 的用法见 ",["$","$L6",null,{"href":"./usage","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"使用方式"}],"。"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["dmctlx 在本机直连数据库，不经过 MCP Server，也不使用 MCP 侧的 Token。分发形态：Windows 为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx.exe"}],"，Linux 为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx"}],"（放入 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"PATH"}]," 或使用绝对路径）。首次配置在终端执行 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx setup"}],"，向导把结果写入与可执行文件同目录的 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx-cache.bin"}],"。"]}],"\n",["$","h2",null,{"id":"首次配置","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["首次配置",["$","$L7",null,{"id":"首次配置"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["当第一个参数是 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"setup"}]," 时进入交互向导；该路径不走后续由子命令拼出来的动态路由，因此不会出现在 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx --help"}]," 列出的子命令里。"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["不在帮助里列出 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"setup"}],"，是为了减少自动化流程（例如 Agent）误进交互向导、改写连接信息。应在终端由人工执行："]}],"\n",["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined","$L8"]}],"\n","$L9","\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c"]}]]}]]}]}],null,"$L1d"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+8:["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L1e",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L1f",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"dmctlx"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" setup"}]]}]}]]}]
+9:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["下面按向导里会出现的项说明用途。",["$","strong",null,{"children":"调试模式、截断限制、截断文件输出目录"}]," 与 dmctl 向导中的含义、默认行为及安全注意一致，此处不重复展开，请直接阅读 ",["$","$L6",null,{"href":"./dmctl-config","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"dmctl 配置"}]," 中同名小节（并配合 ",["$","$L6",null,{"href":"./output-truncation","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"输出截断"}],"）。"]}]
+a:["$","h3",null,{"id":"主机地址","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["主机地址",["$","$L7",null,{"id":"主机地址"}]]}]
+b:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"数据库主机名或 IP。"}]
+c:["$","h3",null,{"id":"端口","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["端口",["$","$L7",null,{"id":"端口"}]]}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"数据库监听端口。"}]
+e:["$","h3",null,{"id":"用户名","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["用户名",["$","$L7",null,{"id":"用户名"}]]}]
+f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["登录用户，例如 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"SYSDBA"}],"。"]}]
+10:["$","h3",null,{"id":"密码","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["密码",["$","$L7",null,{"id":"密码"}]]}]
+11:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"数据库登录密码；允许空字符串。"}]
+12:["$","h3",null,{"id":"调试模式","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["调试模式",["$","$L7",null,{"id":"调试模式"}]]}]
+13:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["与 ",["$","$L6",null,{"href":"./dmctl-config","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"dmctl 配置"}]," 中「调试模式」一致。另：环境变量 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"DMCTLX_DEBUG"}]," 为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"1"}],"、",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"true"}]," 或 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"yes"}]," 时也会打开调试日志，与缓存里 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"debug_mode"}]," 为真时的行为一致（见源码 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"main.py"}],"）。"]}]
+14:["$","h3",null,{"id":"截断限制字符数","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["截断限制（字符数）",["$","$L7",null,{"id":"截断限制字符数"}]]}]
+15:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["与 ",["$","$L6",null,{"href":"./dmctl-config","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"dmctl 配置"}]," 中「截断限制（字符数）」及 ",["$","$L6",null,{"href":"./output-truncation","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"输出截断"}]," 一致。"]}]
+16:["$","h3",null,{"id":"截断文件输出目录","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["截断文件输出目录",["$","$L7",null,{"id":"截断文件输出目录"}]]}]
+17:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["与 ",["$","$L6",null,{"href":"./dmctl-config","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"dmctl 配置"}]," 中「截断文件输出目录」一致。"]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["向导结束后，在与可执行文件同目录生成 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx-cache.bin"}],"，其中包含连接信息、调试与截断等配置。之后子命令依赖该文件。"]}]
+19:["$","h2",null,{"id":"已有缓存时的维护菜单","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["已有缓存时的维护菜单",["$","$L7",null,{"id":"已有缓存时的维护菜单"}]]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["若已存在 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx-cache.bin"}],"，向导一般提供："]}]
+1b:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"修改配置：单独改连接、调试、截断等。"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"重新配置：清空后重新走一遍向导。"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"退出：不保存。"}],"\n"]}]
+1c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["与 ",["$","$L6",null,{"href":"./dmctl-config","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"dmctl 配置"}]," 中「已有缓存时的维护菜单」相比，dmctlx ",["$","strong",null,{"children":"没有"}],"「更新工具列表」一项（子命令随本程序内置，不从远端拉元数据）。"]}]
+1d:["$","$L20",null,{"children":["$","$21",null,{"name":"Next.MetadataOutlet","children":"$@22"}]}]
+22:null

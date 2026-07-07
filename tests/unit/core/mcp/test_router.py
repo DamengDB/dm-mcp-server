@@ -7,6 +7,11 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock
 from pydantic.networks import AnyUrl
 
+from dm_mcp.core.exceptions import (
+    PromptNotFoundError,
+    ResourceNotFoundError,
+    ToolNotFoundError,
+)
 from dm_mcp.core.mcp.router import MCPRouter
 
 
@@ -107,7 +112,7 @@ class TestMCPRouter:
         """测试调用不存在的工具"""
         router = MCPRouter()
 
-        with pytest.raises(ValueError, match="Unknown tool"):
+        with pytest.raises(ToolNotFoundError, match="未知工具"):
             await router.call_tool("nonexistent_tool", {})
 
     # ==================== Resource 测试 ====================
@@ -205,7 +210,7 @@ class TestMCPRouter:
         """测试读取不存在的资源"""
         router = MCPRouter()
 
-        with pytest.raises(ValueError, match="Resource not found"):
+        with pytest.raises(ResourceNotFoundError, match="资源未找到"):
             await router.read_resource("resource://nonexistent")
 
     @pytest.mark.asyncio
@@ -329,7 +334,7 @@ class TestMCPRouter:
         """测试获取不存在的提示词"""
         router = MCPRouter()
 
-        with pytest.raises(ValueError, match="Unknown prompt"):
+        with pytest.raises(PromptNotFoundError, match="未知提示词"):
             await router.get_prompt("nonexistent_prompt", {})
 
     @pytest.mark.asyncio

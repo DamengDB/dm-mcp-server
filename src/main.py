@@ -3,13 +3,7 @@
 提供应用程序的启动入口，初始化MCP服务器并运行。
 """
 
-# 在导入其他模块之前，先设置 UTF-8 编码
-from dm_mcp.utils.encoding import setup_utf8_encoding
-
-# 设置 UTF-8 编码（必须在其他导入之前）
-setup_utf8_encoding()
-
-from dm_mcp.server import MCPServer
+from dm_mcp.app.server import MCPServer
 
 
 def create_server() -> MCPServer:

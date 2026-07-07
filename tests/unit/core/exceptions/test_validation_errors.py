@@ -15,7 +15,7 @@ class TestValidationError:
     def test_default_values(self):
         """测试默认值"""
         error = ValidationError()
-        assert error.message == "Validation failed"
+        assert error.message == "验证失败"
         assert error.error_code == "VALIDATION_ERROR"
         assert error.status_code == 400
 
@@ -70,7 +70,7 @@ class TestMissingParameterError:
         """测试带参数名"""
         error = MissingParameterError("email")
         assert "email" in error.message
-        assert "Missing" in error.message
+        assert "缺少" in error.message
         assert error.error_code == "MISSING_PARAMETER"
         assert error.status_code == 400
         assert error.details["parameter"] == "email"

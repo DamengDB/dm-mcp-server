@@ -1,0 +1,174 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+9:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+a:I[22016,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],""]
+b:I[90232,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Mermaid"]
+24:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+25:"$Sreact.suspense"
+27:I[83987,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ToggleWordWrapButton"]
+28:I[40493,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"CopyToClipboard"]
+5:T12bc,# 认证与数据源访问
+
+本文档说明 AI 客户端连接达梦 MCP 服务时的认证方式，以及令牌与数据源之间的权限关系。
+
+## 令牌与数据源的关系
+
+达梦 MCP 的访问令牌与数据源之间是**多对多**的关系：
+
+- **一个令牌可绑定多个数据源** — 在 [令牌管理](../console/token) 页面创建令牌时，通过"允许访问的数据源"字段选择多个数据源，令牌有权访问其列表中的每一个。
+- **一个数据源可被多个令牌引用** — 在 [数据源管理](../console/datasource) 页面配置的数据源，可以被不同的令牌各自绑定，实现不同客户端或不同场景的独立权限控制。
+
+这种设计的目的是支持**最小权限原则**。例如，你可以为开发环境创建一个仅绑定测试数据源的令牌，为生产运维创建另一个仅绑定生产数据源的令牌，两者互不干扰。
+
+### 数据源选择优先级
+
+当 AI 客户端发起请求时，系统按以下顺序确定使用哪个数据源：
+
+1. **请求头部指定** — 如果请求携带 `X-DMMCP-DataSource` 头部，使用其指定的数据源名称
+2. **令牌默认数据源** — 如果未指定头部，使用令牌创建时设置的默认数据源。在 [令牌管理](../console/token) 页面创建令牌时，"默认数据源"字段必须从"允许访问的数据源"列表中选择一项
+3. **权限校验** — 最终确定的数据源必须在令牌的允许列表中，否则返回 403 错误
+
+```mermaid
+flowchart LR
+    A[请求到达] --> B{携带 X-DMMCP-DataSource?}
+    B -->|是| C[使用Header指定数据源]
+    B -->|否| D[使用令牌默认数据源]
+    C --> E{在允许列表中?}
+    D --> E
+    E -->|是| F[正常执行]
+    E -->|否| G[返回403]
+```
+
+> **注意**：创建令牌时必须指定至少一个数据源，否则令牌无法通过认证。默认数据源必须是允许列表中的一项。
+
+## HTTP 认证头部
+
+### Authorization（必需）
+
+MCP 路由的 API 请求必须使用 Token 认证。访问令牌在 [令牌管理](../console/token) 页面创建，创建后系统会自动将其复制到剪贴板。在 HTTP 请求头中携带 `Authorization` 字段：
+
+```
+Authorization: Bearer sk-dmmcp-AbCdEfGhIjKlMnOp...
+```
+
+### X-DMMCP-DataSource（可选）
+
+在 HTTP 请求中通过此头部动态指定要使用的数据源。数据源名称在 [数据源管理](../console/datasource) 页面配置，创建时填写的"名称"字段即为此处使用的值：
+
+```
+X-DMMCP-DataSource: my_production_db
+```
+
+- 头部值为数据源配置中的**名称**字段，大小写敏感
+- 指定的数据源必须在令牌的允许列表中
+- 未指定时，自动回退到令牌的默认数据源
+
+## 配置示例
+
+### Claude Code
+
+在 Claude Code 的 MCP 配置中添加达梦 MCP 服务：
+
+```json
+{
+  "mcpServers": {
+    "dm-mcp": {
+      "url": "http://your-server/dm-mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer sk-dmmcp-xxxxxxxx"
+      }
+    }
+  }
+}
+```
+
+### 切换数据源
+
+若令牌绑定了多个数据源，可以通过额外指定 `X-DMMCP-DataSource` 头部来切换：
+
+```json
+{
+  "mcpServers": {
+    "dm-mcp-prod": {
+      "url": "http://your-server/dm-mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer sk-dmmcp-xxxxxxxx",
+        "X-DMMCP-DataSource": "production_db"
+      }
+    },
+    "dm-mcp-test": {
+      "url": "http://your-server/dm-mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer sk-dmmcp-xxxxxxxx",
+        "X-DMMCP-DataSource": "test_db"
+      }
+    }
+  }
+}
+```
+
+上例中，同一个令牌通过不同的 MCP 服务配置分别指向生产库和测试库。
+
+### curl 测试
+
+```bash
+curl -X POST http://your-server/dm-mcp/mcp \
+  -H "Authorization: Bearer sk-dmmcp-your-token" \
+  -H "X-DMMCP-DataSource: my_datasource" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"get_db_schemas_list","arguments":{}},"id":1}'
+```
+
+## IP 访问控制
+
+在 [令牌管理](../console/token) 页面创建或编辑令牌时，可以通过"IP 名单"开关选择白名单或黑名单模式，限制访问来源：
+
+- **白名单** — 仅允许列表中的 IP 地址或 CIDR 网段使用该令牌
+- **黑名单** — 禁止列表中的 IP 地址或 CIDR 网段使用该令牌
+
+## CLI 工具使用提示
+
+DM Agent CLI 不会发送 `X-DMMCP-DataSource` 头部，因此每次请求都会使用令牌的**默认数据源**。
+
+如果你的令牌绑定了多个数据源，建议采取以下策略之一：
+
+1. **在 [令牌管理](../console/token) 页面设置合适的默认数据源** — 将 CLI 最常用的数据源设为默认。
+2. **为 CLI 工具单独创建令牌** — 可以单独创建一个仅绑定 CLI 所需数据源的令牌。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"令牌与数据源的关系","id":"令牌与数据源的关系","depth":2},{"value":"数据源选择优先级","id":"数据源选择优先级","depth":3},{"value":"HTTP 认证头部","id":"http-认证头部","depth":2},{"value":"Authorization（必需）","id":"authorization必需","depth":3},{"value":"X-DMMCP-DataSource（可选）","id":"x-dmmcp-datasource可选","depth":3},{"value":"配置示例","id":"配置示例","depth":2},{"value":"Claude Code","id":"claude-code","depth":3},{"value":"切换数据源","id":"切换数据源","depth":3},{"value":"curl 测试","id":"curl-测试","depth":3},{"value":"IP 访问控制","id":"ip-访问控制","depth":2},{"value":"CLI 工具使用提示","id":"cli-工具使用提示","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"认证与数据源访问","filePath":"content/mcp/auth.mdx","timestamp":1778897187000},"sourceCode":"$5","children":["$L6","$L7"]}]]}]}],null,"$L8"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+6:["$","div",null,{"id":"nextra-skip-nav"}]
+7:["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["认证与数据源访问","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"本文档说明 AI 客户端连接达梦 MCP 服务时的认证方式，以及令牌与数据源之间的权限关系。"}],"\n",["$","h2",null,{"id":"令牌与数据源的关系","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["令牌与数据源的关系",["$","$L9",null,{"id":"令牌与数据源的关系"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["达梦 MCP 的访问令牌与数据源之间是",["$","strong",null,{"children":"多对多"}],"的关系："]}],"\n",["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"一个令牌可绑定多个数据源"}]," — 在 ",["$","$La",null,{"href":"../console/token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}]," 页面创建令牌时，通过”允许访问的数据源”字段选择多个数据源，令牌有权访问其列表中的每一个。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"一个数据源可被多个令牌引用"}]," — 在 ",["$","$La",null,{"href":"../console/datasource","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"数据源管理"}]," 页面配置的数据源，可以被不同的令牌各自绑定，实现不同客户端或不同场景的独立权限控制。"]}],"\n"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["这种设计的目的是支持",["$","strong",null,{"children":"最小权限原则"}],"。例如，你可以为开发环境创建一个仅绑定测试数据源的令牌，为生产运维创建另一个仅绑定生产数据源的令牌，两者互不干扰。"]}],"\n",["$","h3",null,{"id":"数据源选择优先级","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["数据源选择优先级",["$","$L9",null,{"id":"数据源选择优先级"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"当 AI 客户端发起请求时，系统按以下顺序确定使用哪个数据源："}],"\n",["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"请求头部指定"}]," — 如果请求携带 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"X-DMMCP-DataSource"}]," 头部，使用其指定的数据源名称"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"令牌默认数据源"}]," — 如果未指定头部，使用令牌创建时设置的默认数据源。在 ",["$","$La",null,{"href":"../console/token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}]," 页面创建令牌时，“默认数据源”字段必须从”允许访问的数据源”列表中选择一项"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"权限校验"}]," — 最终确定的数据源必须在令牌的允许列表中，否则返回 403 错误"]}],"\n"]}],"\n",["$","$Lb",null,{"chart":"flowchart LR\\n    A[请求到达] --> B{携带 X-DMMCP-DataSource?}\\n    B -->|是| C[使用Header指定数据源]\\n    B -->|否| D[使用令牌默认数据源]\\n    C --> E{在允许列表中?}\\n    D --> E\\n    E -->|是| F[正常执行]\\n    E -->|否| G[返回403]"}],"\n",["$","blockquote",null,{"className":"x:not-first:mt-[1.25em] x:border-gray-300 x:italic x:text-gray-700 x:dark:border-gray-700 x:dark:text-gray-400 x:border-s-2 x:ps-[1.5em]","children":["\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"注意"}],"：创建令牌时必须指定至少一个数据源，否则令牌无法通过认证。默认数据源必须是允许列表中的一项。"]}],"\n"]}],"\n",["$","h2",null,{"id":"http-认证头部","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["HTTP 认证头部",["$","$L9",null,{"id":"http-认证头部"}]]}],"\n",["$","h3",null,{"id":"authorization必需","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["Authorization（必需）","$Lc"]}],"\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c","\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23"]}]
+8:["$","$L24",null,{"children":["$","$25",null,{"name":"Next.MetadataOutlet","children":"$@26"}]}]
+c:["$","$L9",null,{"id":"authorization必需"}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["MCP 路由的 API 请求必须使用 Token 认证。访问令牌在 ",["$","$La",null,{"href":"../console/token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}]," 页面创建，创建后系统会自动将其复制到剪贴板。在 HTTP 请求头中携带 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"Authorization"}]," 字段："]}]
+e:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L27",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L28",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":["$","span",null,{"children":["$","span",null,{"children":"Authorization: Bearer sk-dmmcp-AbCdEfGhIjKlMnOp..."}]}]}]]}]]}]
+f:["$","h3",null,{"id":"x-dmmcp-datasource可选","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["X-DMMCP-DataSource（可选）",["$","$L9",null,{"id":"x-dmmcp-datasource可选"}]]}]
+10:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["在 HTTP 请求中通过此头部动态指定要使用的数据源。数据源名称在 ",["$","$La",null,{"href":"../console/datasource","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"数据源管理"}]," 页面配置，创建时填写的”名称”字段即为此处使用的值："]}]
+11:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L27",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L28",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":["$","span",null,{"children":["$","span",null,{"children":"X-DMMCP-DataSource: my_production_db"}]}]}]]}]]}]
+12:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":["头部值为数据源配置中的",["$","strong",null,{"children":"名称"}],"字段，大小写敏感"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"指定的数据源必须在令牌的允许列表中"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"未指定时，自动回退到令牌的默认数据源"}],"\n"]}]
+13:["$","h2",null,{"id":"配置示例","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["配置示例",["$","$L9",null,{"id":"配置示例"}]]}]
+14:["$","h3",null,{"id":"claude-code","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["Claude Code",["$","$L9",null,{"id":"claude-code"}]]}]
+15:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"在 Claude Code 的 MCP 配置中添加达梦 MCP 服务："}]
+16:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L27",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L28",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"{"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  \"mcpServers\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"    \"dm-mcp\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"url\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"http://your-server/dm-mcp/mcp\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"headers\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"        \"Authorization\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"Bearer sk-dmmcp-xxxxxxxx\""}]]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"      }"}]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    }"}]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  }"}]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"}"}]}]]}]]}]]}]
+17:["$","h3",null,{"id":"切换数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["切换数据源",["$","$L9",null,{"id":"切换数据源"}]]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["若令牌绑定了多个数据源，可以通过额外指定 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"X-DMMCP-DataSource"}]," 头部来切换："]}]
+19:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L27",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L28",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"{"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  \"mcpServers\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"    \"dm-mcp-prod\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"url\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"http://your-server/dm-mcp/mcp\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"headers\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"        \"Authorization\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"Bearer sk-dmmcp-xxxxxxxx\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"        \"X-DMMCP-DataSource\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"production_db\""}]]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"      }"}]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    },"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"    \"dm-mcp-test\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"url\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"http://your-server/dm-mcp/mcp\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"      \"headers\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": {"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"        \"Authorization\""}],"$L29","$L2a","$L2b"]}],"\n","$L2c","\n","$L2d","\n","$L2e","\n","$L2f","\n","$L30"]}]]}]]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"上例中，同一个令牌通过不同的 MCP 服务配置分别指向生产库和测试库。"}]
+1b:["$","h3",null,{"id":"curl-测试","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["curl 测试",["$","$L9",null,{"id":"curl-测试"}]]}]
+1c:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L27",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L28",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"curl"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" -X"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" POST"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" http://your-server/dm-mcp/mcp"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" \\"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  -H"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" \"Authorization: Bearer sk-dmmcp-your-token\""}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" \\"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  -H"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" \"X-DMMCP-DataSource: my_datasource\""}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" \\"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  -H"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" \"Content-Type: application/json\""}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" \\"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"  -d"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" '{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"name\":\"get_db_schemas_list\",\"arguments\":{}},\"id\":1}'"}]]}]]}]]}]]}]
+1d:["$","h2",null,{"id":"ip-访问控制","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["IP 访问控制",["$","$L9",null,{"id":"ip-访问控制"}]]}]
+1e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["在 ",["$","$La",null,{"href":"../console/token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}]," 页面创建或编辑令牌时，可以通过”IP 名单”开关选择白名单或黑名单模式，限制访问来源："]}]
+1f:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"白名单"}]," — 仅允许列表中的 IP 地址或 CIDR 网段使用该令牌"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"黑名单"}]," — 禁止列表中的 IP 地址或 CIDR 网段使用该令牌"]}],"\n"]}]
+20:["$","h2",null,{"id":"cli-工具使用提示","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["CLI 工具使用提示",["$","$L9",null,{"id":"cli-工具使用提示"}]]}]
+21:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["DM Agent CLI 不会发送 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"X-DMMCP-DataSource"}]," 头部，因此每次请求都会使用令牌的",["$","strong",null,{"children":"默认数据源"}],"。"]}]
+22:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"如果你的令牌绑定了多个数据源，建议采取以下策略之一："}]
+23:["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":["在 ",["$","$La",null,{"href":"../console/token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}]," 页面设置合适的默认数据源"]}]," — 将 CLI 最常用的数据源设为默认。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"为 CLI 工具单独创建令牌"}]," — 可以单独创建一个仅绑定 CLI 所需数据源的令牌。"]}],"\n"]}]
+26:null
+29:["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}]
+2a:["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"Bearer sk-dmmcp-xxxxxxxx\""}]
+2b:["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]
+2c:["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"        \"X-DMMCP-DataSource\""}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":": "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"\"test_db\""}]]}]
+2d:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"      }"}]}]
+2e:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    }"}]}]
+2f:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  }"}]}]
+30:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"}"}]}]

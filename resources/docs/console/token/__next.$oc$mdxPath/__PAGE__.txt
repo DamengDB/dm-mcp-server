@@ -1,0 +1,130 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[26579,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ImageZoom"]
+7:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+27:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+28:"$Sreact.suspense"
+5:Td83,# 令牌管理
+
+访问令牌是 AI 客户端调用达梦 MCP 服务时的身份凭证。本节说明如何创建、配置和管理访问令牌，以及如何通过令牌实现细粒度的数据访问控制。
+
+![令牌管理列表页](/images/console/token-list.png)
+
+## 令牌与 JWT 的区别
+
+在达梦 MCP 中有两种令牌，用途各不相同：
+
+| 类型 | 用途 | 获取方式 |
+|------|------|---------|
+| **JWT 令牌** | 登录 Web 控制台的身份凭证 | 登录时由 OAuth 或管理员认证颁发 |
+| **访问令牌** | AI 客户端调用 MCP 工具的 API 凭证 | 在令牌管理中手动创建 |
+
+本文档中的"令牌"均指**访问令牌**。
+
+## 创建访问令牌
+
+点击列表页上方的"创建令牌"按钮，打开创建对话框。
+
+![创建令牌对话框](/images/console/token-create-dialog.png)
+
+### 基础配置
+
+| 字段 | 说明 |
+|------|------|
+| 令牌名称 | 可读标识，便于区分不同用途的令牌 |
+| 允许访问的数据源 | 多选，决定该令牌可以操作哪些数据源 |
+| 默认数据源 | 当 AI 客户端未指定数据源时使用的默认值 |
+
+### 安全选项
+
+| 字段 | 说明 |
+|------|------|
+| 过期时间 | 设置令牌的有效期，到期后自动失效。留空表示长期有效 |
+| IP 白名单 | 仅允许列表中的 IP 地址使用该令牌，多个地址用逗号分隔 |
+| IP 黑名单 | 禁止列表中的 IP 地址使用该令牌，优先级高于白名单 |
+| 远程主机 | 可选，绑定该令牌可访问的 SSH 主机 |
+
+### 创建完成
+
+点击"创建"后，系统生成令牌，可在界面中点击复制按钮复制到剪贴板中。
+
+## 令牌列表
+
+已创建的令牌以表格形式展示，每条记录显示名称、关联数据源、过期时间和有效状态。
+
+### 展开详情
+
+点击表格行可展开详情面板，查看该令牌的完整权限配置：
+
+- 允许访问的数据源列表
+- 默认数据源
+- 过期时间
+- IP 白名单 / 黑名单
+- 绑定的 SSH 主机
+
+![令牌详情展开面板](/images/console/token-details.png)
+
+## 复制令牌
+
+如果需要在其他设备或客户端中使用已有令牌，可以在列表中点击"复制"按钮，将令牌字符串复制到剪贴板。
+
+## 更新令牌
+
+点击令牌行的"编辑"按钮，可以修改以下配置：
+
+- 令牌名称
+- 允许访问的数据源范围
+- 默认数据源
+- 过期时间（可延长或提前设为过期）
+- IP 白名单 / 黑名单
+- 绑定的 SSH 主机
+
+编辑保存后立即生效，无需重新创建令牌。
+
+## 删除令牌
+
+不再使用的令牌应及时删除以降低安全风险。支持单条删除和批量删除。
+
+删除操作不可撤销，删除后使用该令牌的 AI 客户端将无法继续访问 MCP 服务。
+
+## 安全最佳实践
+
+1. **按用途分令牌** — 为不同的 AI 客户端或不同的使用场景创建独立的令牌，避免一个令牌被多处共用。
+2. **设置合理的过期时间** — 对于临时使用场景，设置较短的过期时间；对于长期使用的生产令牌，建议设置 3-6 个月的过期时间并定期轮换。
+3. **使用 IP 白名单** — 如果 AI 客户端从固定 IP 或固定网段发起请求，建议配置 IP 白名单进一步缩小攻击面。
+4. **限制数据源范围** — 每个令牌只赋予其必需的最小数据源集合，遵循最小权限原则。
+5. **及时清理失效令牌** — 定期检查令牌列表，删除过期或不再使用的令牌。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"令牌与 JWT 的区别","id":"令牌与-jwt-的区别","depth":2},{"value":"创建访问令牌","id":"创建访问令牌","depth":2},{"value":"基础配置","id":"基础配置","depth":3},{"value":"安全选项","id":"安全选项","depth":3},{"value":"创建完成","id":"创建完成","depth":3},{"value":"令牌列表","id":"令牌列表","depth":2},{"value":"展开详情","id":"展开详情","depth":3},{"value":"复制令牌","id":"复制令牌","depth":2},{"value":"更新令牌","id":"更新令牌","depth":2},{"value":"删除令牌","id":"删除令牌","depth":2},{"value":"安全最佳实践","id":"安全最佳实践","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"令牌管理","filePath":"content/console/token.mdx","timestamp":1778897187000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["令牌管理","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"访问令牌是 AI 客户端调用达梦 MCP 服务时的身份凭证。本节说明如何创建、配置和管理访问令牌，以及如何通过令牌实现细粒度的数据访问控制。"}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"令牌管理列表页","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/token-list.0jfdixrjy6k_4.png","width":1201,"height":190,"blurWidth":8,"blurHeight":1,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAAADjAO9DAAAAIklEQVR42mN49/7D/99//v7/9+8fGP/5+/f/Xyh+//nvfwAFrB9xoCxN+QAAAABJRU5ErkJggg=="}}]}],"\n",["$","h2",null,{"id":"令牌与-jwt-的区别","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["令牌与 JWT 的区别",["$","$L7",null,{"id":"令牌与-jwt-的区别"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"在达梦 MCP 中有两种令牌，用途各不相同："}],"\n",["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"类型","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],"$L8","$L9"],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],"$La"]}],"\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c","\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25"]}]]}]]}]}],null,"$L26"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+8:["$","th",null,{"children":"用途","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]
+9:["$","th",null,{"children":"获取方式","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]
+a:["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","strong",null,{"children":"JWT 令牌"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"登录 Web 控制台的身份凭证","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"登录时由 OAuth 或管理员认证颁发","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","strong",null,{"children":"访问令牌"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"AI 客户端调用 MCP 工具的 API 凭证","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"在令牌管理中手动创建","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]
+b:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["本文档中的”令牌”均指",["$","strong",null,{"children":"访问令牌"}],"。"]}]
+c:["$","h2",null,{"id":"创建访问令牌","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["创建访问令牌",["$","$L7",null,{"id":"创建访问令牌"}]]}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击列表页上方的”创建令牌”按钮，打开创建对话框。"}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"创建令牌对话框","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/token-create-dialog.0.5ko-sxbmkw-.png","width":605,"height":784,"blurWidth":6,"blurHeight":8,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAICAYAAADaxo44AAAAdklEQVR42k2OQQ4CMQhFe//beQDX6kKqUx2gLXxpO4mzeCHh/U9It/sD352htaGbL7ohPekFFj2WOHAkohxCItXh7gHmjAaBmVFrhZn9BeUMicZKnxo5xB6NmQYWQ2xbQSmfOCdorc2Pphj3VRUSjPkuisu14wdnSrvE67w2UwAAAABJRU5ErkJggg=="}}]}]
+f:["$","h3",null,{"id":"基础配置","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["基础配置",["$","$L7",null,{"id":"基础配置"}]]}]
+10:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"字段","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"说明","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"令牌名称","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"可读标识，便于区分不同用途的令牌","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"允许访问的数据源","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"多选，决定该令牌可以操作哪些数据源","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"默认数据源","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"当 AI 客户端未指定数据源时使用的默认值","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+11:["$","h3",null,{"id":"安全选项","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["安全选项",["$","$L7",null,{"id":"安全选项"}]]}]
+12:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"字段","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"说明","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"过期时间","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"设置令牌的有效期，到期后自动失效。留空表示长期有效","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"IP 白名单","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"仅允许列表中的 IP 地址使用该令牌，多个地址用逗号分隔","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"IP 黑名单","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"禁止列表中的 IP 地址使用该令牌，优先级高于白名单","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"远程主机","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"可选，绑定该令牌可访问的 SSH 主机","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+13:["$","h3",null,{"id":"创建完成","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["创建完成",["$","$L7",null,{"id":"创建完成"}]]}]
+14:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击”创建”后，系统生成令牌，可在界面中点击复制按钮复制到剪贴板中。"}]
+15:["$","h2",null,{"id":"令牌列表","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["令牌列表",["$","$L7",null,{"id":"令牌列表"}]]}]
+16:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"已创建的令牌以表格形式展示，每条记录显示名称、关联数据源、过期时间和有效状态。"}]
+17:["$","h3",null,{"id":"展开详情","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["展开详情",["$","$L7",null,{"id":"展开详情"}]]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击表格行可展开详情面板，查看该令牌的完整权限配置："}]
+19:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"允许访问的数据源列表"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"默认数据源"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"过期时间"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"IP 白名单 / 黑名单"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"绑定的 SSH 主机"}],"\n"]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"令牌详情展开面板","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/token-details.0-b04fhn-rrov.png","width":947,"height":367,"blurWidth":8,"blurHeight":3,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAADCAYAAACuyE5IAAAASklEQVR42l2MwQqAMAxD9/9f6UEPgqDQdW3jJNp52yEkPMgrxxUUBYGbHmAzp3uMnaws60nzzsAz5Wdl24VSjVX9e2PAbG1p6XwBDfVdbv+ONR8AAAAASUVORK5CYII="}}]}]
+1b:["$","h2",null,{"id":"复制令牌","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["复制令牌",["$","$L7",null,{"id":"复制令牌"}]]}]
+1c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"如果需要在其他设备或客户端中使用已有令牌，可以在列表中点击”复制”按钮，将令牌字符串复制到剪贴板。"}]
+1d:["$","h2",null,{"id":"更新令牌","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["更新令牌",["$","$L7",null,{"id":"更新令牌"}]]}]
+1e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击令牌行的”编辑”按钮，可以修改以下配置："}]
+1f:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"令牌名称"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"允许访问的数据源范围"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"默认数据源"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"过期时间（可延长或提前设为过期）"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"IP 白名单 / 黑名单"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"绑定的 SSH 主机"}],"\n"]}]
+20:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"编辑保存后立即生效，无需重新创建令牌。"}]
+21:["$","h2",null,{"id":"删除令牌","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["删除令牌",["$","$L7",null,{"id":"删除令牌"}]]}]
+22:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"不再使用的令牌应及时删除以降低安全风险。支持单条删除和批量删除。"}]
+23:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"删除操作不可撤销，删除后使用该令牌的 AI 客户端将无法继续访问 MCP 服务。"}]
+24:["$","h2",null,{"id":"安全最佳实践","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["安全最佳实践",["$","$L7",null,{"id":"安全最佳实践"}]]}]
+25:["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"按用途分令牌"}]," — 为不同的 AI 客户端或不同的使用场景创建独立的令牌，避免一个令牌被多处共用。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"设置合理的过期时间"}]," — 对于临时使用场景，设置较短的过期时间；对于长期使用的生产令牌，建议设置 3-6 个月的过期时间并定期轮换。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"使用 IP 白名单"}]," — 如果 AI 客户端从固定 IP 或固定网段发起请求，建议配置 IP 白名单进一步缩小攻击面。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"限制数据源范围"}]," — 每个令牌只赋予其必需的最小数据源集合，遵循最小权限原则。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"及时清理失效令牌"}]," — 定期检查令牌列表，删除过期或不再使用的令牌。"]}],"\n"]}]
+26:["$","$L27",null,{"children":["$","$28",null,{"name":"Next.MetadataOutlet","children":"$@29"}]}]
+29:null

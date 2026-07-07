@@ -32,3 +32,8 @@ coverage.xml
 /docs
 /.specstory
 /.cursorindexingignore
+
+/archive/
+
+# pytest/mock 误写路径时可能生成的垃圾目录
+/MagicMock/

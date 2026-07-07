@@ -1,0 +1,89 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[22016,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],""]
+7:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+1d:I[83987,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ToggleWordWrapButton"]
+1e:I[40493,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"CopyToClipboard"]
+1f:I[26579,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ImageZoom"]
+20:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+21:"$Sreact.suspense"
+5:Tbd4,---
+title: dmctl 配置（远端 MCP）
+---
+
+# dmctl 配置（远端 MCP）
+
+可执行文件与 `--help` 的用法见 [使用方式](./usage)。
+
+## 首次配置
+
+当第一个参数是 `setup` 时进入交互向导；该路径不走后续由缓存元数据拼出来的动态子命令，因此不会出现在 `dmctl --help` 列出的子命令里（无缓存时帮助文本为基础占位，有缓存时来自元数据）。
+
+不在帮助里列出 `setup`，是为了减少自动化流程（例如 Agent）误进交互向导、改写连接信息。应在终端由人工执行：
+
+```bash
+dmctl setup
+```
+
+下面按向导里会出现的项说明用途。
+
+### MCP 服务地址
+
+达梦 MCP 的 HTTP(S) 入口，用于注册会话、列举工具、发起调用。须与实际部署 URL 一致（含协议、主机、端口、路径前缀）。
+
+登录**前端控制台**，打开**首页**，在「CLI 工具服务地址」卡片中可看到当前环境的 MCP 入口；点击**复制**，将剪贴板里的地址粘贴到本向导的「MCP 服务地址」一项即可（下图为该卡片示意，实际 URL 以你环境为准）。
+
+![控制台首页「CLI 工具服务地址」卡片，可复制地址填入 dmctl setup 的 MCP 服务地址](/images/console/cli-mcp-service-address.png)
+
+### 令牌（API Key）
+
+请求里携带的凭证，由服务端校验。申请与轮换按运维或平台文档。不要把密钥写进版本库；向导写入本地缓存后，仍应对该文件限制访问权限。
+
+### 调试模式
+
+是否在标准错误输出更详细的运行日志，用于排查连接、序列化、HTTP 错误。不需要排障时可关闭，以减少日志量与敏感信息外泄风险。
+
+### 截断限制（字符数）
+
+- 对 JSON 里的字符串：长度超过阈值时，标准输出只保留约前 1024 个字符（尽量在换行处截断），并带 `... [完整内容: …]`；完整内容写到「截断文件输出目录」。规则细节见 [输出截断](./output-truncation)。
+- 对同时含 `columns` 与 `records` 的对象：按表处理，超过阈值时裁行并写 `_truncated`，整表落盘。见同一文档。
+
+默认一般为 `2048`（以向导提示为准）。设为 `0` 关闭截断，大结果会整段打到标准输出，占用终端与内存，自行权衡。
+
+### 截断文件输出目录
+
+触发截断时完整内容写入的目录，可为相对路径（相对当前工作目录）或绝对路径。默认常见为 `./truncated`（以向导为准）。目录需可写，不存在时程序一般会创建。
+
+向导结束后，在与可执行文件同目录生成 `dmctl-cache.bin`，其中包含连接信息、会话与已下载的命令说明。之后子命令依赖该文件。
+
+## 已有缓存时的维护菜单
+
+若已存在 `dmctl-cache.bin`，向导一般提供：
+
+- 修改配置：单独改地址、令牌、调试、截断等。
+- 更新工具列表：保留连接配置，仅从服务器重新拉元数据与会话。
+- 重新配置：清空后重新走一遍向导。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"首次配置","id":"首次配置","depth":2},{"value":"MCP 服务地址","id":"mcp-服务地址","depth":3},{"value":"令牌（API Key）","id":"令牌api-key","depth":3},{"value":"调试模式","id":"调试模式","depth":3},{"value":"截断限制（字符数）","id":"截断限制字符数","depth":3},{"value":"截断文件输出目录","id":"截断文件输出目录","depth":3},{"value":"已有缓存时的维护菜单","id":"已有缓存时的维护菜单","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"dmctl 配置（远端 MCP）","filePath":"content/cli/dmctl-config.mdx","timestamp":1778739393000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["dmctl 配置（远端 MCP）","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["可执行文件与 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"--help"}]," 的用法见 ",["$","$L6",null,{"href":"./usage","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"使用方式"}],"。"]}],"\n",["$","h2",null,{"id":"首次配置","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["首次配置",["$","$L7",null,{"id":"首次配置"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["当第一个参数是 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"setup"}]," 时进入交互向导；该路径不走后续由缓存元数据拼出来的动态子命令，因此不会出现在 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl --help"}]," 列出的子命令里（无缓存时帮助文本为基础占位，有缓存时来自元数据）。"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["不在帮助里列出 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"setup"}],"，是为了减少自动化流程（例如 Agent）误进交互向导、改写连接信息。应在终端由人工执行："]}],"\n",["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":["$L8","$L9"]}]]}],"\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b"]}]]}]]}]}],null,"$L1c"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+8:["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L1d",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L1e",null,{"className":""}]]}]
+9:["$","code",null,{"className":"nextra-code","dir":"ltr","children":["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"dmctl"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" setup"}]]}]}]
+a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"下面按向导里会出现的项说明用途。"}]
+b:["$","h3",null,{"id":"mcp-服务地址","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["MCP 服务地址",["$","$L7",null,{"id":"mcp-服务地址"}]]}]
+c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"达梦 MCP 的 HTTP(S) 入口，用于注册会话、列举工具、发起调用。须与实际部署 URL 一致（含协议、主机、端口、路径前缀）。"}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["登录",["$","strong",null,{"children":"前端控制台"}],"，打开",["$","strong",null,{"children":"首页"}],"，在「CLI 工具服务地址」卡片中可看到当前环境的 MCP 入口；点击",["$","strong",null,{"children":"复制"}],"，将剪贴板里的地址粘贴到本向导的「MCP 服务地址」一项即可（下图为该卡片示意，实际 URL 以你环境为准）。"]}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L1f",null,{"alt":"控制台首页「CLI 工具服务地址」卡片，可复制地址填入 dmctl setup 的 MCP 服务地址","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/cli-mcp-service-address.0ctbylh4tcnm3.png","width":537,"height":117,"blurWidth":8,"blurHeight":2,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAACCAYAAABllJ3tAAAAN0lEQVR42i2KOQ7AMAjA8v+fsnMUFHDbKIPlwV4RgYjg7uzdzMwHx93NykxUFTMj4rnDH4eq4gUOkD60ret8WQAAAABJRU5ErkJggg=="}}]}]
+f:["$","h3",null,{"id":"令牌api-key","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["令牌（API Key）",["$","$L7",null,{"id":"令牌api-key"}]]}]
+10:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"请求里携带的凭证，由服务端校验。申请与轮换按运维或平台文档。不要把密钥写进版本库；向导写入本地缓存后，仍应对该文件限制访问权限。"}]
+11:["$","h3",null,{"id":"调试模式","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["调试模式",["$","$L7",null,{"id":"调试模式"}]]}]
+12:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"是否在标准错误输出更详细的运行日志，用于排查连接、序列化、HTTP 错误。不需要排障时可关闭，以减少日志量与敏感信息外泄风险。"}]
+13:["$","h3",null,{"id":"截断限制字符数","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["截断限制（字符数）",["$","$L7",null,{"id":"截断限制字符数"}]]}]
+14:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":["对 JSON 里的字符串：长度超过阈值时，标准输出只保留约前 1024 个字符（尽量在换行处截断），并带 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"... [完整内容: …]"}],"；完整内容写到「截断文件输出目录」。规则细节见 ",["$","$L6",null,{"href":"./output-truncation","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"输出截断"}],"。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":["对同时含 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"columns"}]," 与 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"records"}]," 的对象：按表处理，超过阈值时裁行并写 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"_truncated"}],"，整表落盘。见同一文档。"]}],"\n"]}]
+15:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["默认一般为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"2048"}],"（以向导提示为准）。设为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"0"}]," 关闭截断，大结果会整段打到标准输出，占用终端与内存，自行权衡。"]}]
+16:["$","h3",null,{"id":"截断文件输出目录","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["截断文件输出目录",["$","$L7",null,{"id":"截断文件输出目录"}]]}]
+17:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["触发截断时完整内容写入的目录，可为相对路径（相对当前工作目录）或绝对路径。默认常见为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./truncated"}],"（以向导为准）。目录需可写，不存在时程序一般会创建。"]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["向导结束后，在与可执行文件同目录生成 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl-cache.bin"}],"，其中包含连接信息、会话与已下载的命令说明。之后子命令依赖该文件。"]}]
+19:["$","h2",null,{"id":"已有缓存时的维护菜单","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["已有缓存时的维护菜单",["$","$L7",null,{"id":"已有缓存时的维护菜单"}]]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["若已存在 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl-cache.bin"}],"，向导一般提供："]}]
+1b:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"修改配置：单独改地址、令牌、调试、截断等。"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"更新工具列表：保留连接配置，仅从服务器重新拉元数据与会话。"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"重新配置：清空后重新走一遍向导。"}],"\n"]}]
+1c:["$","$L20",null,{"children":["$","$21",null,{"name":"Next.MetadataOutlet","children":"$@22"}]}]
+22:null

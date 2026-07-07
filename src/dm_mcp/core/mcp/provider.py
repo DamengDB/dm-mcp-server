@@ -4,14 +4,15 @@
 """
 
 from abc import ABC
-from typing import Any, Dict, List
+from typing import Any
 
 from mcp import Resource, Tool, types
 from pydantic import AnyUrl
 
+from dm_mcp.common import messages
 from dm_mcp.core.auth.auth_context import AuthContext
 from dm_mcp.core.mcp.context import MCPContext
-from dm_mcp.core.metrics.metrics_context import MetricsContext
+from dm_mcp.infra.metrics.metrics_context import MetricsContext
 
 from .router import MCPRouter
 
@@ -50,7 +51,7 @@ class BaseMCPProvider(ABC):
         """
         ctx = MCPContext.current()
         if ctx.auth is None:
-            raise ValueError("No auth context set")
+            raise ValueError(messages.MSG_AUTH_NO_AUTH_CONTEXT)
         return ctx.auth
 
     @property
@@ -65,19 +66,19 @@ class BaseMCPProvider(ABC):
         """
         ctx = MCPContext.current()
         if ctx.metrics is None:
-            raise ValueError("No metrics context set")
+            raise ValueError(messages.MSG_AUTH_NO_METRICS_CONTEXT)
         return ctx.metrics
 
-    def list_prompts(self) -> List[types.Prompt]:
+    def list_prompts(self) -> list[types.Prompt]:
         """列出所有可用的提示词
 
         Returns:
-            List[types.Prompt]: 提示词列表
+            list[types.Prompt]: 提示词列表
         """
         return self.mcp.list_prompts()
 
     async def get_prompt(
-        self, name: str, arguments: Dict[str, Any] | None = None
+        self, name: str, arguments: dict[str, Any] | None = None
     ) -> types.GetPromptResult:
         """获取指定的提示词
 
@@ -90,19 +91,19 @@ class BaseMCPProvider(ABC):
         """
         return await self.mcp.get_prompt(name, arguments)
 
-    def list_resources(self) -> List[Resource]:
+    def list_resources(self) -> list[Resource]:
         """列出所有静态资源
 
         Returns:
-            List[Resource]: 静态资源列表
+            list[Resource]: 静态资源列表
         """
         return self.mcp.list_resources()
 
-    def list_resource_templates(self) -> List[types.ResourceTemplate]:
+    def list_resource_templates(self) -> list[types.ResourceTemplate]:
         """列出所有资源模板
 
         Returns:
-            List[types.ResourceTemplate]: 资源模板列表
+            list[types.ResourceTemplate]: 资源模板列表
         """
         return self.mcp.list_resource_templates()
 
@@ -117,15 +118,15 @@ class BaseMCPProvider(ABC):
         """
         return await self.mcp.read_resource(uri)
 
-    def list_tools(self) -> List[Tool]:
+    def list_tools(self) -> list[Tool]:
         """列出所有可用的工具
 
         Returns:
-            List[Tool]: 工具列表
+            list[Tool]: 工具列表
         """
         return self.mcp.list_tools()
 
-    async def call_tool(self, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def call_tool(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
         """调用指定的工具
 
         Args:
@@ -133,6 +134,25 @@ class BaseMCPProvider(ABC):
             args: 工具参数
 
         Returns:
-            Dict[str, Any]: 工具执行结果
+            dict[str, Any]: 工具执行结果
         """
         return await self.mcp.call_tool(name, args)
+
+    async def startup(self) -> None:
+        """Provider启动钩子
+
+        子类可以覆盖此方法，在Provider启动时执行初始化操作，
+        例如从数据库加载配置、注册动态工具等。
+
+        此方法会在 MCPService.startup() 阶段被调用。
+        """
+        pass
+
+    async def shutdown(self) -> None:
+        """Provider关闭钩子
+
+        子类可以覆盖此方法，在Provider关闭时执行清理操作。
+
+        此方法会在 MCPService 关闭时被调用。
+        """
+        pass

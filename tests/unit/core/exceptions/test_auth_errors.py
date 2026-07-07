@@ -19,7 +19,7 @@ class TestAuthenticationError:
     def test_default_values(self):
         """测试默认值"""
         error = AuthenticationError()
-        assert error.message == "Authentication failed"
+        assert error.message == "认证失败"
         assert error.error_code == "AUTH_FAILED"
         assert error.status_code == 401
 
@@ -49,7 +49,7 @@ class TestAuthorizationError:
     def test_default_values(self):
         """测试默认值"""
         error = AuthorizationError()
-        assert error.message == "Authorization failed"
+        assert error.message == "授权失败"
         assert error.error_code == "AUTH_FORBIDDEN"
         assert error.status_code == 403
 
@@ -74,7 +74,7 @@ class TestTokenExpiredError:
     def test_default_values(self):
         """测试默认值"""
         error = TokenExpiredError()
-        assert error.message == "Token expired"
+        assert error.message == "Token 已过期"
         assert error.error_code == "AUTH_TOKEN_EXPIRED"
         assert error.status_code == 401
 
@@ -94,7 +94,7 @@ class TestInvalidTokenError:
     def test_default_values(self):
         """测试默认值"""
         error = InvalidTokenError()
-        assert error.message == "Invalid token"
+        assert error.message == "无效的 Token"
         assert error.error_code == "AUTH_INVALID_TOKEN"
         assert error.status_code == 401
 
@@ -139,7 +139,7 @@ class TestIpNotAllowedError:
     def test_default_values(self):
         """测试默认值"""
         error = IpNotAllowedError()
-        assert error.message == "IP address not allowed"
+        assert error.message == "IP 地址不允许访问"
         assert error.error_code == "IP_NOT_ALLOWED"
         assert error.status_code == 403
 
@@ -159,7 +159,7 @@ class TestTokenDatasourceNotFoundError:
     def test_default_values(self):
         """测试默认值"""
         error = TokenDatasourceNotFoundError()
-        assert error.message == "Token datasource not found or unavailable"
+        assert error.message == "Token 绑定的数据源不存在或不可用"
         assert error.error_code == "AUTH_TOKEN_DATASOURCE_NOT_FOUND"
         assert error.status_code == 401
 

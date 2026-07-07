@@ -1,0 +1,143 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[26579,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ImageZoom"]
+7:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+2a:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+2b:"$Sreact.suspense"
+5:Tfb8,# 数据源管理
+
+数据源是达梦 MCP 与数据库建立连接的桥梁。所有 MCP 工具的数据库操作都通过已配置的数据源执行。本节说明如何在控制台中创建、配置和管理数据源。
+
+![数据源管理列表页](/images/console/datasource-list.png)
+
+## 创建数据源
+
+点击列表页上方的"添加数据源"按钮，打开创建对话框。
+
+![添加数据源对话框](/images/console/datasource-create-dialog.png)
+
+### 基础连接信息
+
+| 字段 | 说明 |
+|------|------|
+| 名称 | 数据源的唯一标识，后续在令牌管理和元数据管理中引用 |
+| 部署类型 | **STANDALONE**（单机）或达梦数据库集群类型 |
+| 主机 | 数据库服务器地址 |
+| 端口 | 数据库监听端口，默认为 5236 |
+| 用户名 | 连接数据库使用的数据库用户 |
+| 密码 | 对应的数据库用户密码 |
+
+### 高级选项
+
+| 字段 | 说明 |
+|------|------|
+| DSN | 可选，当使用数据源名连接时填写 |
+| 只读模式 | 开启后，该数据源仅允许执行查询类操作，禁止写入 |
+| 连接池最小连接数 (minsize) | 连接池保持的最小空闲连接数 |
+| 连接池最大连接数 (maxsize) | 连接池允许的最大连接数 |
+| 连接超时 (timeout) | 建立连接的最大等待时间（秒） |
+| 权重 (weight) | 多数据源负载均衡时的权重分配 |
+
+### 连接测试
+
+填写完成后，建议先点击"测试连接"按钮验证配置是否正确。系统会尝试与目标数据库建立连接并返回测试结果。测试通过后，点击"保存"完成创建。
+
+## 数据源列表
+
+创建后的数据源以表格形式展示，支持以下操作：
+
+### 搜索与筛选
+
+列表顶部提供搜索框，支持按数据源名称、主机地址或用户名进行模糊搜索，方便在数据源较多时快速定位。
+
+### 展开详情
+
+点击表格行可展开详情面板，查看该数据源的实时连接池状态：
+
+- 当前连接数 (size)
+- 空闲连接数 (freesize)
+- 最小连接数 (minsize)
+- 最大连接数 (maxsize)
+- 部署类型
+- 是否只读
+- 负载策略
+
+![数据源详情展开面板](/images/console/datasource-details.png)
+
+## 设置默认数据源
+
+当 AI 客户端调用 MCP 工具但未显式指定数据源时，系统使用默认数据源。在列表中通过下拉选择框可以切换默认数据源。
+
+## 启用与禁用
+
+每个数据源都可以单独启用或禁用：
+
+- **启用** — 数据源可被 MCP 工具正常访问
+- **禁用** — 数据源保留配置但不再提供服务，MCP 工具不会使用该数据源建立连接
+
+支持单条操作和批量操作。选中多条记录后，可通过批量操作栏一次性启用或禁用。
+
+![批量操作栏](/images/console/datasource-batch-actions.png)
+
+## 重载数据源
+
+当数据库端发生变更（如用户密码更新、连接参数调整）时，可以通过重载操作使配置生效，无需重启服务。
+
+- **单条重载** — 针对单个数据源刷新连接池
+- **全部重载** — 一次性刷新所有数据源的连接池
+
+## 编辑数据源
+
+点击数据源行的"编辑"按钮，打开编辑对话框修改配置信息。编辑后建议重新进行连接测试，确认变更后的配置可以正常连接。
+
+## 删除数据源
+
+不再使用的数据源可以删除。删除操作会同时清理该数据源相关的连接池资源。
+
+支持单条删除和批量删除。删除前请确认：
+
+- 没有访问令牌将该数据源设为默认数据源
+- 没有活跃的 MCP 连接正在使用该数据源
+
+## 常用操作建议
+
+1. **生产环境建议使用只读模式** — 除非有明确的写入需求，否则为数据源开启只读模式可以降低误操作风险。
+2. **定期测试连接** — 数据源列表中的"测试"按钮可以快速验证现有数据源的连通性，建议在网络变更或数据库维护后执行。
+3. **合理配置连接池** — 根据数据库服务器的实际承载能力和并发请求量，调整 minsize 和 maxsize 参数。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"创建数据源","id":"创建数据源","depth":2},{"value":"基础连接信息","id":"基础连接信息","depth":3},{"value":"高级选项","id":"高级选项","depth":3},{"value":"连接测试","id":"连接测试","depth":3},{"value":"数据源列表","id":"数据源列表","depth":2},{"value":"搜索与筛选","id":"搜索与筛选","depth":3},{"value":"展开详情","id":"展开详情","depth":3},{"value":"设置默认数据源","id":"设置默认数据源","depth":2},{"value":"启用与禁用","id":"启用与禁用","depth":2},{"value":"重载数据源","id":"重载数据源","depth":2},{"value":"编辑数据源","id":"编辑数据源","depth":2},{"value":"删除数据源","id":"删除数据源","depth":2},{"value":"常用操作建议","id":"常用操作建议","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"数据源管理","filePath":"content/console/datasource.mdx","timestamp":1778897187000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["数据源管理","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"数据源是达梦 MCP 与数据库建立连接的桥梁。所有 MCP 工具的数据库操作都通过已配置的数据源执行。本节说明如何在控制台中创建、配置和管理数据源。"}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"数据源管理列表页","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/datasource-list.0higmxbh6k4a4.png","width":1199,"height":331,"blurWidth":8,"blurHeight":2,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAACCAYAAABllJ3tAAAAOElEQVR42j2KMQ4AIAgD+f9LXXAwMSFAqejgcEN7J6pKj6CZMTMfAPoDxyyKu7OqWuAHl+i9NngAEi0+xkIxTmUAAAAASUVORK5CYII="}}]}],"\n",["$","h2",null,{"id":"创建数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["创建数据源",["$","$L7",null,{"id":"创建数据源"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击列表页上方的”添加数据源”按钮，打开创建对话框。"}],"\n","$L8","\n","$L9","\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c","\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28"]}]]}]]}]}],null,"$L29"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+8:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"添加数据源对话框","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/datasource-create-dialog.0mpd8yb-_y3if.png","width":604,"height":777,"blurWidth":6,"blurHeight":8,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAICAYAAADaxo44AAAAcUlEQVR42k2NyxbCMAhE8/+f6Fa7rcbktDwCY0Bty4ozl7mUx7Jg23aoDpgZYtwd5VUbRA0klgcRmk3Qe8cYAyyOnSjDaJZa6+/KJpTcU/VuUyWaQFVPsK5PEHGCUB7P22xEmCrmr9Yvz/8NZsXtrvgAgqa8RsZIL14AAAAASUVORK5CYII="}}]}]
+9:["$","h3",null,{"id":"基础连接信息","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["基础连接信息",["$","$L7",null,{"id":"基础连接信息"}]]}]
+a:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"字段","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"说明","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"名称","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"数据源的唯一标识，后续在令牌管理和元数据管理中引用","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"部署类型","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":[["$","strong",null,{"children":"STANDALONE"}],"（单机）或达梦数据库集群类型"],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"主机","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"数据库服务器地址","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"端口","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"数据库监听端口，默认为 5236","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"用户名","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"连接数据库使用的数据库用户","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"密码","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"对应的数据库用户密码","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+b:["$","h3",null,{"id":"高级选项","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["高级选项",["$","$L7",null,{"id":"高级选项"}]]}]
+c:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"字段","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"说明","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"DSN","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"可选，当使用数据源名连接时填写","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"只读模式","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"开启后，该数据源仅允许执行查询类操作，禁止写入","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"连接池最小连接数 (minsize)","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"连接池保持的最小空闲连接数","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"连接池最大连接数 (maxsize)","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"连接池允许的最大连接数","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"连接超时 (timeout)","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"建立连接的最大等待时间（秒）","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":"权重 (weight)","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"多数据源负载均衡时的权重分配","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+d:["$","h3",null,{"id":"连接测试","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["连接测试",["$","$L7",null,{"id":"连接测试"}]]}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"填写完成后，建议先点击”测试连接”按钮验证配置是否正确。系统会尝试与目标数据库建立连接并返回测试结果。测试通过后，点击”保存”完成创建。"}]
+f:["$","h2",null,{"id":"数据源列表","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["数据源列表",["$","$L7",null,{"id":"数据源列表"}]]}]
+10:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"创建后的数据源以表格形式展示，支持以下操作："}]
+11:["$","h3",null,{"id":"搜索与筛选","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["搜索与筛选",["$","$L7",null,{"id":"搜索与筛选"}]]}]
+12:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"列表顶部提供搜索框，支持按数据源名称、主机地址或用户名进行模糊搜索，方便在数据源较多时快速定位。"}]
+13:["$","h3",null,{"id":"展开详情","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["展开详情",["$","$L7",null,{"id":"展开详情"}]]}]
+14:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击表格行可展开详情面板，查看该数据源的实时连接池状态："}]
+15:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"当前连接数 (size)"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"空闲连接数 (freesize)"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"最小连接数 (minsize)"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"最大连接数 (maxsize)"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"部署类型"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"是否只读"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"负载策略"}],"\n"]}]
+16:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"数据源详情展开面板","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/datasource-details.0zpj_-zta~48w.png","width":946,"height":268,"blurWidth":8,"blurHeight":2,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAACCAYAAABllJ3tAAAANklEQVR42lXKMQ4AIAgEQf7/VUO0UDjA5LQysdhsM6IDnFY0Bx1BRL4qi9K006O4PL4bLsrNAwUiPlHmJ+vFAAAAAElFTkSuQmCC"}}]}]
+17:["$","h2",null,{"id":"设置默认数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["设置默认数据源",["$","$L7",null,{"id":"设置默认数据源"}]]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"当 AI 客户端调用 MCP 工具但未显式指定数据源时，系统使用默认数据源。在列表中通过下拉选择框可以切换默认数据源。"}]
+19:["$","h2",null,{"id":"启用与禁用","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["启用与禁用",["$","$L7",null,{"id":"启用与禁用"}]]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"每个数据源都可以单独启用或禁用："}]
+1b:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"启用"}]," — 数据源可被 MCP 工具正常访问"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"禁用"}]," — 数据源保留配置但不再提供服务，MCP 工具不会使用该数据源建立连接"]}],"\n"]}]
+1c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"支持单条操作和批量操作。选中多条记录后，可通过批量操作栏一次性启用或禁用。"}]
+1d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"批量操作栏","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/datasource-batch-actions.0.cxt0fw8ax5q.png","width":951,"height":135,"blurWidth":8,"blurHeight":1,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAAADjAO9DAAAALElEQVR42gEhAN7/AOzw+f/y9Pn/9vf5//X2+P/29/n/9PX3//Pz9//h6Pv//b4e3WFzbZYAAAAASUVORK5CYII="}}]}]
+1e:["$","h2",null,{"id":"重载数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["重载数据源",["$","$L7",null,{"id":"重载数据源"}]]}]
+1f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"当数据库端发生变更（如用户密码更新、连接参数调整）时，可以通过重载操作使配置生效，无需重启服务。"}]
+20:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"单条重载"}]," — 针对单个数据源刷新连接池"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"全部重载"}]," — 一次性刷新所有数据源的连接池"]}],"\n"]}]
+21:["$","h2",null,{"id":"编辑数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["编辑数据源",["$","$L7",null,{"id":"编辑数据源"}]]}]
+22:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击数据源行的”编辑”按钮，打开编辑对话框修改配置信息。编辑后建议重新进行连接测试，确认变更后的配置可以正常连接。"}]
+23:["$","h2",null,{"id":"删除数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["删除数据源",["$","$L7",null,{"id":"删除数据源"}]]}]
+24:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"不再使用的数据源可以删除。删除操作会同时清理该数据源相关的连接池资源。"}]
+25:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"支持单条删除和批量删除。删除前请确认："}]
+26:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"没有访问令牌将该数据源设为默认数据源"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"没有活跃的 MCP 连接正在使用该数据源"}],"\n"]}]
+27:["$","h2",null,{"id":"常用操作建议","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["常用操作建议",["$","$L7",null,{"id":"常用操作建议"}]]}]
+28:["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"生产环境建议使用只读模式"}]," — 除非有明确的写入需求，否则为数据源开启只读模式可以降低误操作风险。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"定期测试连接"}]," — 数据源列表中的”测试”按钮可以快速验证现有数据源的连通性，建议在网络变更或数据库维护后执行。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"合理配置连接池"}]," — 根据数据库服务器的实际承载能力和并发请求量，调整 minsize 和 maxsize 参数。"]}],"\n"]}]
+29:["$","$L2a",null,{"children":["$","$2b",null,{"name":"Next.MetadataOutlet","children":"$@2c"}]}]
+2c:null

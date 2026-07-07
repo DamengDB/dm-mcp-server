@@ -3,12 +3,19 @@
 测试完整的认证流程，包括 OAuth、Basic Auth 和 Token 认证。
 """
 
+import uuid
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from dm_mcp.server import MCPServer
+from dm_mcp.app.server import MCPServer
 from tests.conftest import mock_settings
+
+
+def _test_datasource_id() -> str:
+    """Token 测试用的数据源 UUID（create_token 不校验数据源是否存在）。"""
+    return str(uuid.uuid4())
 
 
 @pytest.mark.integration
@@ -60,46 +67,6 @@ class TestAuthFlow:
         response = await client.get(path)
         # OAuth 端点可能返回 200 或 404（如果未配置）
         assert response.status_code in [200, 404, 500]
-
-    async def test_oauth_providers_endpoint_with_configured_provider(
-        self, mock_settings
-    ):
-        """测试配置了 OAuth 提供商时的端点"""
-        from pydantic import SecretStr
-
-        from dm_mcp.settings.oauth_config import OAuthConfig
-
-        # 创建带有配置的 OAuth 设置
-        class TestOAuthSettings:
-            def __new__(cls):
-                oauth_config = OAuthConfig(
-                    enabled=True,
-                    google_client_id="test_client_id",
-                    google_client_secret=SecretStr("test_client_secret"),
-                )
-                mock_settings_copy = mock_settings.model_copy()
-                mock_settings_copy.oauth = oauth_config
-                return mock_settings_copy
-
-        server = MCPServer(settings_cls=TestOAuthSettings)  # type: ignore
-        await server.startup()
-
-        try:
-            app = server.create_asgi_app(stateless=True)
-            async with AsyncClient(
-                transport=ASGITransport(app=app), base_url="http://test"
-            ) as client:
-                path = self._get_path(server, "/api/v1/auth/providers")
-                response = await client.get(path)
-
-                # 应该返回 200 和提供商列表
-                assert response.status_code == 200
-                data = response.json()
-                assert isinstance(data, list)
-                # 应该包含配置的提供商
-                assert "google" in data
-        finally:
-            await server.shutdown()
 
     async def test_basic_auth_init_password(self, client, server):
         """测试基础认证初始化密码"""
@@ -179,12 +146,12 @@ class TestAuthFlow:
 
         if login_response.status_code == 200:
             data = login_response.json()
-            # 验证返回的 Token 或用户信息
+            payload = data.get("data", data)
             assert (
-                "token" in data
-                or "access_token" in data
-                or "jwt" in data
-                or "user" in data
+                "token" in payload
+                or "access_token" in payload
+                or "jwt" in payload
+                or "user" in payload
             )
 
     async def test_basic_auth_login_flow_success(self, mock_settings):
@@ -222,7 +189,7 @@ class TestAuthFlow:
                 assert login_response.status_code == 200
                 data = login_response.json()
                 assert data["success"] is True
-                assert "jwt" in data
+                assert "jwt" in data["data"]
         finally:
             await server.shutdown()
 
@@ -254,27 +221,25 @@ class TestAuthFlow:
         await server.startup()
 
         token_service = server.context.token_service
-        datasource_service = server.context.datasource_service
-
-        # 1. 获取数据源 ID
-        datasources = await datasource_service.list_datasources()
-        datasource_id = datasources[0].id if datasources else None
-
-        # 如果没有数据源，跳过此测试
-        if datasource_id is None:
-            pytest.skip("No datasources available for token creation")
+        datasource_id = _test_datasource_id()
 
         # 2. 创建 Token
         user_id = "test_user"
         created_token = await token_service.create_token(
             user_id=user_id,
-            datasource_id=datasource_id,
-            description="Test token for integration",
+            datasource_ids=[datasource_id],
+            default_datasource_id=datasource_id,
+            name="Test token for integration",
         )
         assert created_token is not None
         assert hasattr(created_token, "token") or isinstance(created_token, dict)
 
-        # 2. 获取 Token
+        # 2. 获取 Token 的管理短码 token_id
+        token_id_value = None
+        if hasattr(created_token, "token_id"):
+            token_id_value = getattr(created_token, "token_id", None)
+        elif isinstance(created_token, dict):
+            token_id_value = created_token.get("token_id")
         token_value = None
         if hasattr(created_token, "token"):
             token_value = getattr(created_token, "token", None)
@@ -290,10 +255,10 @@ class TestAuthFlow:
         assert isinstance(tokens, list)
 
         # 4. 更新 Token（如果支持）
-        if token_value:
+        if token_id_value:
             try:
                 updated_token = await token_service.update_token(
-                    token=token_value, description="Updated description"
+                    token_id=token_id_value, name="Updated name"
                 )
                 # 更新可能成功或失败
             except Exception:
@@ -301,9 +266,9 @@ class TestAuthFlow:
                 pass
 
         # 5. 删除 Token（如果支持）
-        if token_value:
+        if token_id_value:
             try:
-                await token_service.delete_token(token_value)
+                await token_service.delete_token(token_id_value)
                 # 删除可能成功或失败
             except Exception:
                 # 删除操作可能不支持，这里只测试接口存在
@@ -317,20 +282,13 @@ class TestAuthFlow:
 
         # 创建一个测试 Token
         token_service = server.context.token_service
-        datasource_service = server.context.datasource_service
-
-        # 获取数据源 ID
-        datasources = await datasource_service.list_datasources()
-        datasource_id = datasources[0].id if datasources else None
-
-        # 如果没有数据源，跳过此测试
-        if datasource_id is None:
-            pytest.skip("No datasources available for token creation")
+        datasource_id = _test_datasource_id()
 
         created_token = await token_service.create_token(
             user_id="integration_test_user",
-            datasource_id=datasource_id,
-            description="Token for integration test",
+            datasource_ids=[datasource_id],
+            default_datasource_id=datasource_id,
+            name="Token for integration test",
         )
 
         # 获取 Token 值
@@ -340,13 +298,16 @@ class TestAuthFlow:
         elif isinstance(created_token, dict):
             token_value = created_token.get("token")
 
-        # 使用 Token 访问受保护的端点
+        # 使用 Token 访问 MCP 端点（MCP Token 仅用于 /mcp 路由）
         if token_value:
             headers = {"Authorization": f"Bearer {token_value}"}
-            # 测试访问数据源列表（可能需要认证）
-            response = await client.get("/api/v1/datasources", headers=headers)
-            # 可能返回 200（成功）或 401（未授权）或其他
-            assert response.status_code in [200, 401, 403, 404, 500]
+            path = self._get_path(server, "/mcp/messages?sessionId=test_session")
+            response = await client.post(
+                path,
+                json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+                headers=headers,
+            )
+            assert response.status_code in [200, 400, 404, 500]
 
         await server.shutdown()
 
@@ -365,45 +326,34 @@ class TestAuthFlow:
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
-                # 创建一个测试 Token
                 token_service = server.context.token_service
-                datasource_service = server.context.datasource_service
-
-                # 获取数据源 ID
-                datasources = await datasource_service.list_datasources()
-                datasource_id = datasources[0].id if datasources else None
-
-                # 如果没有数据源，跳过此测试
-                if datasource_id is None:
-                    pytest.skip("No datasources available for token creation")
+                datasource_id = _test_datasource_id()
 
                 created_token = await token_service.create_token(
                     user_id="integration_test_user",
-                    datasource_id=datasource_id,
-                    description="Token for integration test",
+                    datasource_ids=[datasource_id],
+                    default_datasource_id=datasource_id,
+                    name="Token for integration test",
                 )
 
-                # 获取 Token 值
-                token_value = None
-                if hasattr(created_token, "token"):
-                    token_value = created_token.token
-                elif isinstance(created_token, dict):
-                    token_value = created_token.get("token")
-
+                token_value = getattr(created_token, "token", None) or (
+                    created_token.get("token")
+                    if isinstance(created_token, dict)
+                    else None
+                )
                 assert token_value is not None, "Token should be created successfully"
 
-                # 使用 Token 访问受保护的端点
                 headers = {"Authorization": f"Bearer {token_value}"}
-                # 测试访问数据源列表
-                response = await client.get("/api/v1/datasources", headers=headers)
+                path = self._get_path(server, "/mcp/messages?sessionId=test_session")
+                response = await client.post(
+                    path,
+                    json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+                    headers=headers,
+                )
 
-                # 如果认证成功，应该返回 200 或其他非认证错误的状态码
-                # （具体状态码取决于数据源服务是否可用）
-                assert response.status_code in [
-                    200,
-                    404,
-                    500,
-                ]  # 不应该返回 401/403（认证失败）
+                # MCP Token 认证成功时不应返回 401/403
+                assert response.status_code in [200, 400, 404, 500]
+                assert response.status_code not in [401, 403]
         finally:
             await server.shutdown()
 

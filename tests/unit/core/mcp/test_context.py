@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from dm_mcp.core.auth.auth_context import AuthContext
-from dm_mcp.core.datasource.datasource_context import DatasourceContext
-from dm_mcp.core.metrics.metrics_context import MetricsContext
+from dm_mcp.infra.persistence.datasource_context import DatasourceContext
+from dm_mcp.infra.metrics.metrics_context import MetricsContext
 from dm_mcp.core.mcp.context import MCPContext
 
 
@@ -373,7 +373,8 @@ class TestMCPContextBuildForHttp:
         auth = AuthContext(user_id="http_user", auth_type="token", token="abc")
         mock_user = MagicMock()
         mock_user.auth_context = auth
-        mock_user.datasource_id = None  # 未绑定数据源
+        mock_user.datasource_ids = []  # 未绑定数据源
+        mock_user.default_datasource_id = None
 
         ctx = await MCPContext.build_for_http(mock_user, mock_settings)
 
@@ -397,15 +398,24 @@ class TestMCPContextBuildForHttp:
         mock_settings = MagicMock()
         mock_settings.pool.default_source = "primary"
 
-        bound_ds_id = uuid.uuid4()
+        bound_ds_id = str(uuid.uuid4())
         auth = AuthContext(user_id="token_user", auth_type="token", token="abc")
         mock_user = MagicMock()
         mock_user.auth_context = auth
-        mock_user.datasource_id = bound_ds_id
+        mock_user.datasource_ids = [bound_ds_id]
+        mock_user.default_datasource_id = bound_ds_id
 
-        ctx = await MCPContext.build_for_http(mock_user, mock_settings)
+        mock_ds = MagicMock()
+        mock_ds.id = uuid.UUID(bound_ds_id)
+        mock_ds.enabled = True
+        mock_datasource_service = MagicMock()
+        mock_datasource_service.get_datasource = AsyncMock(return_value=mock_ds)
 
-        assert ctx.datasource.datasource_id == bound_ds_id
+        ctx = await MCPContext.build_for_http(
+            mock_user, mock_settings, mock_datasource_service
+        )
+
+        assert ctx.datasource.datasource_id == uuid.UUID(bound_ds_id)
 
 
 class TestMCPContextModelBehavior:

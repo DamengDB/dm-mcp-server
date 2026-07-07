@@ -3,6 +3,7 @@
 提供数据库操作相关的异常类定义，包括连接池、数据源、查询执行等异常。
 """
 
+from dm_mcp.common import messages
 from .base_error import DmMCPError
 
 
@@ -13,13 +14,6 @@ class DatabaseError(DmMCPError):
     """
 
     def __init__(self, message: str, source: str | None = None, **kwargs):
-        """初始化数据库异常
-
-        Args:
-            message: 错误消息
-            source: 数据源名称（可选）
-            **kwargs: 其他参数传递给基类
-        """
         error_code = kwargs.pop("error_code", "DATABASE_ERROR")
         status_code = kwargs.pop("status_code", 500)
         super().__init__(
@@ -36,12 +30,6 @@ class ConnectionPoolError(DatabaseError):
     """
 
     def __init__(self, message: str, **kwargs):
-        """初始化连接池异常
-
-        Args:
-            message: 错误消息
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
             message=message, error_code="DB_POOL_ERROR", status_code=500, **kwargs
         )
@@ -54,14 +42,8 @@ class DataSourceNotFoundError(DatabaseError):
     """
 
     def __init__(self, source_name: str, **kwargs):
-        """初始化数据源不存在异常
-
-        Args:
-            source_name: 数据源名称
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
-            message=f"Data source '{source_name}' not found",
+            message=messages.MSG_DATASOURCE_NOT_FOUND_DEFAULT.format(source_name=source_name),
             source=source_name,
             error_code="DB_SOURCE_NOT_FOUND",
             status_code=404,
@@ -77,13 +59,6 @@ class QueryExecutionError(DatabaseError):
     """
 
     def __init__(self, message: str, sql: str | None = None, **kwargs):
-        """初始化查询执行异常
-
-        Args:
-            message: 错误消息
-            sql: SQL语句（可选，为避免泄露敏感信息只记录前100个字符）
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
             message=message, error_code="DB_QUERY_ERROR", status_code=500, **kwargs
         )

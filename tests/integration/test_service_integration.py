@@ -7,8 +7,8 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from dm_mcp.server import MCPServer
-from dm_mcp.settings import Settings
+from dm_mcp.app.server import MCPServer
+from dm_mcp.infra.config import Settings
 from tests.conftest import mock_settings
 
 
@@ -68,11 +68,11 @@ class TestServiceIntegration:
         response = await client.get(f"{base_url}/api/v1/config")
         assert response.status_code == 200
         data = response.json()
-        # config 端点返回: oauth_enabled, token_auth_enabled, initialized
+        payload = data.get("data", data)
         assert (
-            "oauth_enabled" in data
-            or "token_auth_enabled" in data
-            or "initialized" in data
+            "oauth_enabled" in payload
+            or "token_auth_enabled" in payload
+            or "initialized" in payload
         )
 
     async def test_metrics_endpoint(self, client, server):

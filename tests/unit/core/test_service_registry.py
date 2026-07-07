@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 from dm_mcp.core.exceptions import ServiceCircularDependencyError, ServiceNotFoundError
 from dm_mcp.core.service import ServiceFactory, ServiceMetadata
 from dm_mcp.core.service.registry import ServiceRegistry
-from dm_mcp.settings import Settings
+from dm_mcp.infra.config import Settings
 
 
 class TestServiceMetadata:

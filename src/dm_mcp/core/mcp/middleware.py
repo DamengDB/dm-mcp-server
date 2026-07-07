@@ -5,7 +5,7 @@
 
 import functools
 from abc import ABC
-from typing import Any, Awaitable, Callable, List, Optional
+from typing import Any, Awaitable, Callable
 
 # 假设这些是第三方库的引用
 from mcp import Resource, Tool, types
@@ -36,14 +36,14 @@ class BaseMCPMiddleware(ABC):
         """
         await call_next(message)
 
-    async def on_list_tools(self, call_next: NextCallable) -> List[Tool]:
+    async def on_list_tools(self, call_next: NextCallable) -> list[Tool]:
         """列出工具的中间件方法
 
         Args:
             call_next: 下一个中间件或最终处理函数
 
         Returns:
-            List[Tool]: 工具列表
+            list[Tool]: 工具列表
         """
         return await call_next()
 
@@ -62,19 +62,19 @@ class BaseMCPMiddleware(ABC):
         """
         return await call_next(name, arguments)
 
-    async def on_list_prompts(self, call_next: NextCallable) -> List[types.Prompt]:
+    async def on_list_prompts(self, call_next: NextCallable) -> list[types.Prompt]:
         """列出提示词的中间件方法
 
         Args:
             call_next: 下一个中间件或最终处理函数
 
         Returns:
-            List[types.Prompt]: 提示词列表
+            list[types.Prompt]: 提示词列表
         """
         return await call_next()
 
     async def on_get_prompt(
-        self, call_next: NextCallable, name: str, arguments: Optional[dict] = None
+        self, call_next: NextCallable, name: str, arguments: dict | None = None
     ) -> types.GetPromptResult:
         """获取提示词的中间件方法
 
@@ -88,27 +88,27 @@ class BaseMCPMiddleware(ABC):
         """
         return await call_next(name, arguments)
 
-    async def on_list_resources(self, call_next: NextCallable) -> List[Resource]:
+    async def on_list_resources(self, call_next: NextCallable) -> list[Resource]:
         """列出资源的中间件方法
 
         Args:
             call_next: 下一个中间件或最终处理函数
 
         Returns:
-            List[Resource]: 资源列表
+            list[Resource]: 资源列表
         """
         return await call_next()
 
     async def on_list_resource_templates(
         self, call_next: NextCallable
-    ) -> List[types.ResourceTemplate]:
+    ) -> list[types.ResourceTemplate]:
         """列出资源模板的中间件方法
 
         Args:
             call_next: 下一个中间件或最终处理函数
 
         Returns:
-            List[types.ResourceTemplate]: 资源模板列表
+            list[types.ResourceTemplate]: 资源模板列表
         """
         return await call_next()
 
@@ -131,7 +131,7 @@ class MCPMiddlewareStack:
     管理中间件的有序列表，并提供执行中间件调用链的功能。
     """
 
-    def __init__(self, middlewares: List[BaseMCPMiddleware] = []):
+    def __init__(self, middlewares: list[BaseMCPMiddleware] = []):
         """初始化中间件栈
 
         Args:
@@ -156,7 +156,7 @@ class MCPMiddlewareStack:
         """
         self.middlewares.append(middleware)
 
-    def add_middlewares(self, middlewares: List[BaseMCPMiddleware]):
+    def add_middlewares(self, middlewares: list[BaseMCPMiddleware]):
         """批量添加中间件到栈中
 
         Args:
@@ -174,7 +174,7 @@ class MCPMiddlewareStack:
 
     async def _run(
         self, method_name: str, handler: Callable[..., Awaitable[Any]], *args, **kwargs
-    ):
+    ) -> Any:
         """动态构建并执行调用链
 
         从后往前依次用中间件包裹handler，形成调用链。当调用链执行时，
@@ -217,15 +217,15 @@ class MCPMiddlewareStack:
         return await self._run("on_message", handler, message=message)
 
     async def on_list_tools(
-        self, handler: Callable[[], Awaitable[List[Tool]]]
-    ) -> List[Tool]:
+        self, handler: Callable[[], Awaitable[list[Tool]]]
+    ) -> list[Tool]:
         """执行列出工具的中间件调用链
 
         Args:
             handler: 最终处理函数
 
         Returns:
-            List[Tool]: 工具列表
+            list[Tool]: 工具列表
         """
         return await self._run("on_list_tools", handler)
 
@@ -245,23 +245,23 @@ class MCPMiddlewareStack:
         return await self._run("on_call_tool", handler, name=name, arguments=arguments)
 
     async def on_list_prompts(
-        self, handler: Callable[[], Awaitable[List[types.Prompt]]]
-    ) -> List[types.Prompt]:
+        self, handler: Callable[[], Awaitable[list[types.Prompt]]]
+    ) -> list[types.Prompt]:
         """执行列出提示词的中间件调用链
 
         Args:
             handler: 最终处理函数
 
         Returns:
-            List[types.Prompt]: 提示词列表
+            list[types.Prompt]: 提示词列表
         """
         return await self._run("on_list_prompts", handler)
 
     async def on_get_prompt(
         self,
-        handler: Callable[[str, Optional[dict]], Awaitable[Any]],
+        handler: Callable[[str, dict | None], Awaitable[Any]],
         name: str,
-        arguments: Optional[dict] = None,
+        arguments: dict | None = None,
     ) -> types.GetPromptResult:
         """执行获取提示词的中间件调用链
 

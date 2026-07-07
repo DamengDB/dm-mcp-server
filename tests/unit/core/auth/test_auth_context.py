@@ -35,7 +35,7 @@ class TestAuthContext:
 
     def test_auth_context_get_without_context(self):
         """测试在没有上下文时获取认证上下文"""
-        with pytest.raises(ValueError, match="No auth context set"):
+        with pytest.raises(ValueError, match="未设置认证上下文"):
             AuthContext.get()
 
     def test_auth_context_get_with_context(self):

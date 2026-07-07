@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 from dm_mcp.core.mcp.provider import BaseMCPProvider
 from dm_mcp.core.auth.auth_context import AuthContext
-from dm_mcp.core.metrics.metrics_context import MetricsContext
+from dm_mcp.infra.metrics.metrics_context import MetricsContext
 
 
 class MockMCPProvider(BaseMCPProvider):
@@ -45,7 +45,7 @@ class TestBaseMCPProvider:
         """测试 auth 属性（无上下文）"""
         provider = MockMCPProvider()
 
-        with pytest.raises(ValueError, match="No auth context set"):
+        with pytest.raises(ValueError, match="未设置认证上下文"):
             _ = provider.auth
 
     def test_metrics_property(self):

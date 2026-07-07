@@ -3,6 +3,7 @@
 提供认证和授权相关的异常类定义。
 """
 
+from dm_mcp.common import messages
 from .base_error import DmMCPError
 
 
@@ -14,17 +15,10 @@ class AuthenticationError(DmMCPError):
 
     def __init__(
         self,
-        message: str = "Authentication failed",
+        message: str = messages.MSG_AUTH_FAILED,
         error_code: str = "AUTH_FAILED",
         **kwargs,
     ):
-        """初始化认证异常
-
-        Args:
-            message: 错误消息（默认"Authentication failed"）
-            error_code: 错误码（默认"AUTH_FAILED"）
-            **kwargs: 其他参数传递给基类
-        """
         status_code = kwargs.pop("status_code", 401)
         super().__init__(
             message=message, error_code=error_code, status_code=status_code, **kwargs
@@ -39,17 +33,10 @@ class AuthorizationError(DmMCPError):
 
     def __init__(
         self,
-        message: str = "Authorization failed",
+        message: str = messages.MSG_AUTH_FORBIDDEN,
         error_code: str = "AUTH_FORBIDDEN",
         **kwargs,
     ):
-        """初始化授权异常
-
-        Args:
-            message: 错误消息（默认"Authorization failed"）
-            error_code: 错误码（默认"AUTH_FORBIDDEN"）
-            **kwargs: 其他参数传递给基类
-        """
         status_code = kwargs.pop("status_code", 403)
         super().__init__(
             message=message, error_code=error_code, status_code=status_code, **kwargs
@@ -62,13 +49,7 @@ class TokenExpiredError(AuthenticationError):
     当Token已过期时抛出，继承自AuthenticationError。
     """
 
-    def __init__(self, message: str = "Token expired", **kwargs):
-        """初始化Token过期异常
-
-        Args:
-            message: 错误消息（默认"Token expired"）
-            **kwargs: 其他参数传递给基类
-        """
+    def __init__(self, message: str = messages.MSG_AUTH_TOKEN_EXPIRED, **kwargs):
         super().__init__(message=message, error_code="AUTH_TOKEN_EXPIRED", **kwargs)
 
 
@@ -78,13 +59,7 @@ class InvalidTokenError(AuthenticationError):
     当Token格式不正确或无效时抛出，继承自AuthenticationError。
     """
 
-    def __init__(self, message: str = "Invalid token", **kwargs):
-        """初始化Token无效异常
-
-        Args:
-            message: 错误消息（默认"Invalid token"）
-            **kwargs: 其他参数传递给基类
-        """
+    def __init__(self, message: str = messages.MSG_AUTH_TOKEN_INVALID, **kwargs):
         super().__init__(message=message, error_code="AUTH_INVALID_TOKEN", **kwargs)
 
 
@@ -95,13 +70,6 @@ class OAuthError(AuthenticationError):
     """
 
     def __init__(self, message: str, provider: str | None = None, **kwargs):
-        """初始化OAuth异常
-
-        Args:
-            message: 错误消息
-            provider: OAuth提供者名称（可选）
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(message=message, error_code="OAUTH_ERROR", **kwargs)
         if provider:
             self.details["provider"] = provider
@@ -113,13 +81,7 @@ class IpNotAllowedError(AuthorizationError):
     当客户端的IP地址不在白名单中或在黑名单中时抛出，继承自AuthorizationError。
     """
 
-    def __init__(self, message: str = "IP address not allowed", **kwargs):
-        """初始化IP不允许异常
-
-        Args:
-            message: 错误消息（默认"IP address not allowed"）
-            **kwargs: 其他参数传递给基类
-        """
+    def __init__(self, message: str = messages.MSG_AUTH_IP_NOT_ALLOWED_DEFAULT, **kwargs):
         super().__init__(message=message, error_code="IP_NOT_ALLOWED", **kwargs)
 
 
@@ -131,15 +93,9 @@ class TokenDatasourceNotFoundError(AuthenticationError):
 
     def __init__(
         self,
-        message: str = "Token datasource not found or unavailable",
+        message: str = messages.MSG_AUTH_TOKEN_DATASOURCE_NOT_FOUND,
         **kwargs,
     ):
-        """初始化 Token 绑定数据源不存在异常
-
-        Args:
-            message: 错误消息（默认"Token datasource not found or unavailable"）
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
             message=message,
             error_code="AUTH_TOKEN_DATASOURCE_NOT_FOUND",

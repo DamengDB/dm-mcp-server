@@ -12,6 +12,8 @@ dependencies = [
     # Configuration and serialization
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
+    # Docstring parsing
+    "docstring-parser>=0.15.0",
     # dmAsync 运行时依赖
     "async-timeout>=5.0.1",
     "python-dotenv>=1.0.0",
@@ -35,9 +37,11 @@ dependencies = [
     "dmsqlalchemy>=2.0.11",
     "pymysql>=1.1.0",
     "psycopg2-binary>=2.9.0",
+    "asyncpg>=0.29.0",
+    "asyncssh>=2.14.0",
 ]
 name = "dm-mcp-server"
-version = "0.1.0"
+version = "0.2.0"
 description = "达梦数据库 MCP 服务核心框架库"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -131,7 +135,7 @@ known_third_party = ["mcp", "dmPython", "dmAsync", "pydantic", "click"]
 
 # Pytest configuration
 [tool.pytest.ini_options]
-testpaths = ["tests/unit"]
+testpaths = ["tests/unit", "tests/integration"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -142,9 +146,8 @@ norecursedirs = [
     "env",
     "__pycache__",
     "*.egg-info",
-    "examples",
 ]
-addopts = ["-v", "--tb=short", "--ignore=tests/examples"]
+addopts = ["-v", "--tb=short"]
 markers = [
     "unit: 单元测试",
     "integration: 集成测试",

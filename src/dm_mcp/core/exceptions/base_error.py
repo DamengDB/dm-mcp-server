@@ -3,7 +3,7 @@
 提供DM-MCP系统的异常基类，所有业务异常都继承此类。
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class DmMCPError(Exception):
@@ -18,7 +18,7 @@ class DmMCPError(Exception):
         message: str,
         error_code: str = "DMCP_UNKNOWN_ERROR",
         status_code: int = 500,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ):
         """初始化异常
 
@@ -34,11 +34,11 @@ class DmMCPError(Exception):
         self.status_code = status_code
         self.details = details or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典格式，便于JSON响应
 
         Returns:
-            Dict[str, Any]: 包含错误信息的字典
+            dict[str, Any]: 包含错误信息的字典
         """
         return {
             "error": self.error_code,

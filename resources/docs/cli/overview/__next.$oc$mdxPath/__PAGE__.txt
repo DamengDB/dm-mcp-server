@@ -1,0 +1,88 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+19:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+1a:I[22016,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],""]
+1b:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+1c:"$Sreact.suspense"
+5:Te3d,---
+title: CLI 工具总览
+---
+
+import { Callout } from 'nextra/components'
+
+# CLI 工具总览
+
+命令行侧提供两个核心程序，以满足不同场景下的数据库控制需求：
+
+*   **dmctl**：面向远端的**轻量客户端**，与已部署的 MCP 服务配合工作，具体能力与权限边界主要由服务端提供。
+*   **dmctlx**：**自包含的完整形态**，把常用能力收在同一分发单元里，在本机即可完成对数据库的访问与调用，不依赖外部的 MCP 服务。
+
+> **关于命名中的 `ctl`**
+>  
+>  文件名里的 **ctl** 通常作两层理解：
+>  1. **Control**：强调是面向数据库操作的命令行控制入口，而不是泛称的「客户端」或「代理」。
+>  2. **Context Tool Layer**：在上层应用与数据库引擎之间，把元数据、诊断、SQL 等封装成可调用的工具。
+>  *(注：`dmctlx` 中的 **x** 表示本地/便携扩展变体)*
+
+---
+
+## 核心对比与选型
+
+| 特性 | dmctl | dmctlx |
+| :--- | :--- | :--- |
+| **定位** | 远端 Context Tool Layer | 本地便携 Context Tool Layer |
+| **角色** | 轻量客户端，对接 MCP 服务 | 自包含，本机独立完成访问 |
+| **外部依赖** | 需要可用的 MCP Server | 不需要 MCP Server |
+| **认证方式** | Token / API Key | 无（凭据在本地配置里） |
+
+### 如何选用？
+
+*   **选择 `dmctl`**：已有 MCP 服务，需要在网关侧做集中鉴权、统一出口，或需要由平台统一维护数据库的业务注释与 AI 可见性。
+*   **选择 `dmctlx`**：没有 MCP 服务，仅需在本机直接对数据库执行命令进行快速访问与调试。
+
+---
+
+## 能力与形态
+
+### 为什么仍要用终端 CLI？
+
+无论是远端经由 MCP 还是本机自包含路径，终端 CLI（多级子命令 + JSON 标准输出）在与 AI 结合或自动化场景中都具备显著优势：
+
+*   **节省 AI 上下文窗口**：将包含海量工具和参数模式的「整本说明书」长期放入对话上下文会严重消耗 Token 并增加幻觉概率。在终端按需查看 `--help`，每次只传递当前调用的参数，可大幅提升对话效率。
+*   **避免缓存过期**：服务端增删工具后，若 AI 对话仍依赖旧缓存会导致调用失败。CLI 实时拉取能保证能力列表的准确性。
+*   **易于脚本集成**：标准输出格式为 JSON，非常便于管道（Pipeline）与外部脚本进行自动化解析处理。
+
+### 工作模式差异
+
+#### 1. dmctl（远端模式）
+`dmctl` 将 MCP 服务端注册的工具映射为多级子命令（命令分组类似 `aws` 或 `kubectl`）。
+*   **机制**：配置向导从服务端拉取工具元数据并写入本地缓存；日常调用只带本次子命令及参数。
+*   **优势**：可充分利用 MCP 控制台侧的[元数据管理](../console/metadata)能力。平台可统一为表或列补充业务注释、按策略控制 AI 可见的对象范围，大幅降低 AI 理解数据库上下文的门槛。
+*   **特性**：支持对超出阈值的长字段进行截断并落盘（详见 [输出截断](./output-truncation)）。
+
+#### 2. dmctlx（本地模式）
+`dmctlx` 不连接 MCP Server，子命令与参数随本程序版本原生提供。
+*   **机制**：首次运行通过 `dmctlx setup` 将配置写入可执行文件同目录下的 `dmctlx-cache.bin`。
+*   **局限**：由于不经过服务端，工具描述主要依赖数据库系统目录自带的注释。若库内长期缺乏业务注释，在进行数据分析或让模型理解对象含义时，往往需要人工查阅系统表补充上下文，前期准备成本相对更高。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"核心对比与选型","id":"核心对比与选型","depth":2},{"value":"如何选用？","id":"如何选用","depth":3},{"value":"能力与形态","id":"能力与形态","depth":2},{"value":"为什么仍要用终端 CLI？","id":"为什么仍要用终端-cli","depth":3},{"value":"工作模式差异","id":"工作模式差异","depth":3},{"value":"1. dmctl（远端模式）","id":"1-dmctl远端模式","depth":4},{"value":"2. dmctlx（本地模式）","id":"2-dmctlx本地模式","depth":4}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"CLI 工具总览","filePath":"content/cli/overview.mdx","timestamp":1778739393000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["CLI 工具总览","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"命令行侧提供两个核心程序，以满足不同场景下的数据库控制需求："}],"\n",["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"dmctl"}],"：面向远端的",["$","strong",null,{"children":"轻量客户端"}],"，与已部署的 MCP 服务配合工作，具体能力与权限边界主要由服务端提供。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"dmctlx"}],"：",["$","strong",null,{"children":"自包含的完整形态"}],"，把常用能力收在同一分发单元里，在本机即可完成对数据库的访问与调用，不依赖外部的 MCP 服务。"]}],"\n"]}],"\n",["$","blockquote",null,{"className":"x:not-first:mt-[1.25em] x:border-gray-300 x:italic x:text-gray-700 x:dark:border-gray-700 x:dark:text-gray-400 x:border-s-2 x:ps-[1.5em]","children":["\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","strong",null,{"children":["关于命名中的 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"ctl"}]]}]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["文件名里的 ",["$","strong",null,{"children":"ctl"}]," 通常作两层理解："]}],"\n","$L6","\n"]}],"\n","$L7","\n","$L8","\n","$L9","\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17"]}]]}]]}]}],null,"$L18"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+6:["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"Control"}],"：强调是面向数据库操作的命令行控制入口，而不是泛称的「客户端」或「代理」。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"Context Tool Layer"}],"：在上层应用与数据库引擎之间，把元数据、诊断、SQL 等封装成可调用的工具。\n",["$","em",null,{"children":["(注：",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx"}]," 中的 ",["$","strong",null,{"children":"x"}]," 表示本地/便携扩展变体)"]}]]}],"\n"]}]
+7:["$","hr",null,{"className":"x:my-[2em] nextra-border"}]
+8:["$","h2",null,{"id":"核心对比与选型","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["核心对比与选型",["$","$L19",null,{"id":"核心对比与选型"}]]}]
+9:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"style":{"textAlign":"left"},"children":"特性","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"style":{"textAlign":"left"},"children":"dmctl","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"style":{"textAlign":"left"},"children":"dmctlx","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"style":{"textAlign":"left"},"children":["$","strong",null,{"children":"定位"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"远端 Context Tool Layer","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"本地便携 Context Tool Layer","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"style":{"textAlign":"left"},"children":["$","strong",null,{"children":"角色"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"轻量客户端，对接 MCP 服务","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"自包含，本机独立完成访问","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"style":{"textAlign":"left"},"children":["$","strong",null,{"children":"外部依赖"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"需要可用的 MCP Server","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"不需要 MCP Server","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"style":{"textAlign":"left"},"children":["$","strong",null,{"children":"认证方式"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"Token / API Key","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"style":{"textAlign":"left"},"children":"无（凭据在本地配置里）","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+a:["$","h3",null,{"id":"如何选用","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["如何选用？",["$","$L19",null,{"id":"如何选用"}]]}]
+b:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":["选择 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl"}]]}],"：已有 MCP 服务，需要在网关侧做集中鉴权、统一出口，或需要由平台统一维护数据库的业务注释与 AI 可见性。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":["选择 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx"}]]}],"：没有 MCP 服务，仅需在本机直接对数据库执行命令进行快速访问与调试。"]}],"\n"]}]
+c:["$","hr",null,{"className":"x:my-[2em] nextra-border"}]
+d:["$","h2",null,{"id":"能力与形态","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["能力与形态",["$","$L19",null,{"id":"能力与形态"}]]}]
+e:["$","h3",null,{"id":"为什么仍要用终端-cli","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["为什么仍要用终端 CLI？",["$","$L19",null,{"id":"为什么仍要用终端-cli"}]]}]
+f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"无论是远端经由 MCP 还是本机自包含路径，终端 CLI（多级子命令 + JSON 标准输出）在与 AI 结合或自动化场景中都具备显著优势："}]
+10:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"节省 AI 上下文窗口"}],"：将包含海量工具和参数模式的「整本说明书」长期放入对话上下文会严重消耗 Token 并增加幻觉概率。在终端按需查看 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"--help"}],"，每次只传递当前调用的参数，可大幅提升对话效率。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"避免缓存过期"}],"：服务端增删工具后，若 AI 对话仍依赖旧缓存会导致调用失败。CLI 实时拉取能保证能力列表的准确性。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"易于脚本集成"}],"：标准输出格式为 JSON，非常便于管道（Pipeline）与外部脚本进行自动化解析处理。"]}],"\n"]}]
+11:["$","h3",null,{"id":"工作模式差异","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["工作模式差异",["$","$L19",null,{"id":"工作模式差异"}]]}]
+12:["$","h4",null,{"id":"1-dmctl远端模式","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-xl","children":["1. dmctl（远端模式）",["$","$L19",null,{"id":"1-dmctl远端模式"}]]}]
+13:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl"}]," 将 MCP 服务端注册的工具映射为多级子命令（命令分组类似 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"aws"}]," 或 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"kubectl"}],"）。"]}]
+14:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"机制"}],"：配置向导从服务端拉取工具元数据并写入本地缓存；日常调用只带本次子命令及参数。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"优势"}],"：可充分利用 MCP 控制台侧的",["$","$L1a",null,{"href":"../console/metadata","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"元数据管理"}],"能力。平台可统一为表或列补充业务注释、按策略控制 AI 可见的对象范围，大幅降低 AI 理解数据库上下文的门槛。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"特性"}],"：支持对超出阈值的长字段进行截断并落盘（详见 ",["$","$L1a",null,{"href":"./output-truncation","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"输出截断"}],"）。"]}],"\n"]}]
+15:["$","h4",null,{"id":"2-dmctlx本地模式","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-xl","children":["2. dmctlx（本地模式）",["$","$L19",null,{"id":"2-dmctlx本地模式"}]]}]
+16:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx"}]," 不连接 MCP Server，子命令与参数随本程序版本原生提供。"]}]
+17:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"机制"}],"：首次运行通过 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx setup"}]," 将配置写入可执行文件同目录下的 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctlx-cache.bin"}],"。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"局限"}],"：由于不经过服务端，工具描述主要依赖数据库系统目录自带的注释。若库内长期缺乏业务注释，在进行数据分析或让模型理解对象含义时，往往需要人工查阅系统表补充上下文，前期准备成本相对更高。"]}],"\n"]}]
+18:["$","$L1b",null,{"children":["$","$1c",null,{"name":"Next.MetadataOutlet","children":"$@1d"}]}]
+1d:null

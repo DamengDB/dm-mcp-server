@@ -7,15 +7,19 @@
 import logging
 import uuid
 from contextlib import ExitStack, contextmanager
-from typing import Any, Callable, ClassVar, Dict, Optional, Tuple
+from typing import Any, Callable, ClassVar
 
 from pydantic import BaseModel, Field
 
 from dm_mcp.core.auth.auth_context import AuthContext
-from dm_mcp.core.datasource.datasource_context import DatasourceContext
-from dm_mcp.core.metrics.metrics_context import MetricsContext
+from dm_mcp.infra.persistence.datasource_context import DatasourceContext
+from dm_mcp.infra.metrics.metrics_context import MetricsContext
+from dm_mcp.infra.config.settings import Settings
 
 logger = logging.getLogger(__name__)
+
+# stdio 模式下无数据源服务时的固定临时 UUID，保证多次调用结果一致
+_TEMP_DATASOURCE_UUID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
 class MCPContext(BaseModel):
@@ -33,18 +37,18 @@ class MCPContext(BaseModel):
         ctx.extra.get("trace")
     """
 
-    auth: Optional[AuthContext] = Field(default=None, description="认证上下文")
-    metrics: Optional[MetricsContext] = Field(default=None, description="指标上下文")
-    datasource: Optional[DatasourceContext] = Field(
+    auth: AuthContext | None = Field(default=None, description="认证上下文")
+    metrics: MetricsContext | None = Field(default=None, description="指标上下文")
+    datasource: DatasourceContext | None = Field(
         default=None, description="数据源上下文（当前实际使用的数据源）"
     )
-    extra: Dict[str, Any] = Field(
+    extra: dict[str, Any] = Field(
         default_factory=dict, description="扩展上下文（按名称索引）"
     )
 
     # 类级别扩展上下文注册表：name -> getter()
-    # _extra_getters: Dict[str, Callable[[], Any]] = {}
-    _extra_getters: ClassVar[Dict[str, Callable[[], Any]]] = {}
+    # _extra_getters: dict[str, Callable[[], Any]] = {}
+    _extra_getters: ClassVar[dict[str, Callable[[], Any]]] = {}
 
     @classmethod
     def register_extra(cls, name: str, getter: Callable[[], Any]) -> None:
@@ -64,9 +68,9 @@ class MCPContext(BaseModel):
         - AuthContext / MetricsContext 如果未设置，不会抛异常，而是 None
         - 扩展上下文按已注册的 getter 拉取，单个失败会被忽略
         """
-        auth: Optional[AuthContext]
-        metrics: Optional[MetricsContext]
-        datasource: Optional[DatasourceContext]
+        auth: AuthContext | None
+        metrics: MetricsContext | None
+        datasource: DatasourceContext | None
 
         try:
             auth = AuthContext.get()
@@ -83,7 +87,7 @@ class MCPContext(BaseModel):
         except ValueError:
             datasource = None
 
-        extra: Dict[str, Any] = {}
+        extra: dict[str, Any] = {}
         for name, getter in cls._extra_getters.items():
             try:
                 extra[name] = getter()
@@ -137,14 +141,14 @@ class MCPContext(BaseModel):
 
     @classmethod
     async def build_for_stdio(
-        cls, settings: Any, datasource_service: Optional[Any] = None
+        cls, settings: Settings, datasource_service: Any | None = None
     ) -> "MCPContext":
         """为 stdio 模式构建请求上下文
 
         创建匿名认证上下文、指标上下文和数据源上下文。
 
         Args:
-            settings: 服务器设置对象（需要包含 pool.default_source 属性）
+            settings: 服务器设置对象
             datasource_service: 数据源服务（可选，用于通过名称查找 UUID）
 
         Returns:
@@ -158,24 +162,17 @@ class MCPContext(BaseModel):
         metrics = MetricsContext()
 
         # 解析默认数据源名称并查找 UUID
-        # 优先级：1. 持久化的默认数据源 2. 配置中的默认数据源 3. "primary"
+        # 优先级：1. 持久化的默认数据源 2. "primary"
         ds_name = "primary"
         if datasource_service:
             try:
                 # 优先从数据库读取持久化的默认数据源
                 ds_name = await datasource_service.get_default_datasource()
             except Exception as e:
-                logger.warning(f"获取持久化默认数据源失败，回退到配置: {e}")
-                # 回退到配置中的默认值
-                if hasattr(settings, "pool") and hasattr(
-                    settings.pool, "default_source"
-                ):
-                    ds_name = settings.pool.default_source or "primary"
-        elif hasattr(settings, "pool") and hasattr(settings.pool, "default_source"):
-            ds_name = settings.pool.default_source or "primary"
+                logger.warning(f"获取持久化默认数据源失败: {e}")
 
         # 通过名称查找数据源 UUID
-        datasource_id = uuid.uuid4()  # 默认生成一个 UUID（用于无数据源服务的情况）
+        datasource_id = _TEMP_DATASOURCE_UUID  # 固定临时 UUID（保证一致性）
         if datasource_service:
             ds = await datasource_service.get_datasource(ds_name)
             if ds:
@@ -192,56 +189,69 @@ class MCPContext(BaseModel):
     async def build_for_http(
         cls,
         auth_user: Any,
-        settings: Any,
-        datasource_service: Optional[Any] = None,
+        settings: Settings,
+        datasource_service: Any | None = None,
+        request_headers: dict[str, str] | None = None,
     ) -> "MCPContext":
         """为 HTTP 模式构建请求上下文
 
         根据认证用户和设置创建请求上下文。
+        对于 Token 认证，支持通过 X-DMMCP-DataSource Header 动态指定数据源，
+        未指定时回退到 Token 的默认数据源。
 
         Args:
             auth_user: 认证用户对象（可能为 None，表示匿名用户）
-            settings: 服务器设置对象（需要包含 pool.default_source 属性）
+            settings: 服务器设置对象
             datasource_service: 数据源服务（可选，用于通过名称查找 UUID）
+            request_headers: 请求头字典（可选，用于读取 X-DMMCP-DataSource）
 
         Returns:
             MCPContext: 构建好的 MCP 上下文对象
         """
+        from dm_mcp.core.exceptions import AuthorizationError
+        from dm_mcp.core.exceptions.auth_errors import TokenDatasourceNotFoundError
+
         if auth_user:
             auth = auth_user.auth_context
         else:
             auth = AuthContext(token=None)
 
         metrics = MetricsContext()
+        datasource_id: uuid.UUID = _TEMP_DATASOURCE_UUID
 
-        # 解析数据源 UUID
-        # 优先级：1. Token 认证绑定的数据源（从 MCPUser.datasource_id 获取） 2. 持久化的默认数据源 3. 配置的默认数据源 4. 生成临时 UUID
-        datasource_id: uuid.UUID = uuid.uuid4()  # 默认生成一个 UUID
+        if auth.auth_type == "token" and auth_user:
+            target_datasource_id: uuid.UUID | None = None
+            datasource_name: str | None = None
 
-        if (
-            auth.auth_type == "token"
-            and auth_user
-            and hasattr(auth_user, "datasource_id")
-        ):
-            # 一 Token 一数据源：从 MCPUser.datasource_id 获取 token 绑定的数据源 UUID
-            if auth_user.datasource_id:
-                datasource_id = auth_user.datasource_id
-        elif datasource_service:
-            # 优先级：1. 持久化的默认数据源 2. 配置中的默认数据源 3. "primary"
-            ds_name: str = "primary"
-            try:
-                # 优先从数据库读取持久化的默认数据源
-                ds_name = await datasource_service.get_default_datasource()
-            except Exception as e:
-                logger.warning(f"获取持久化默认数据源失败，回退到配置: {e}")
-                # 回退到配置中的默认值
-                if hasattr(settings, "pool") and hasattr(
-                    settings.pool, "default_source"
-                ):
-                    ds_name = settings.pool.default_source or "primary"
-            ds = await datasource_service.get_datasource(ds_name)
-            if ds:
-                datasource_id = ds.id
+            # 1. 优先从 Header 获取数据源名称（大小写敏感，与数据源 name 一致）
+            if request_headers:
+                datasource_name = request_headers.get("x-dmmcp-datasource")
+
+            # 2. Header 未指定，回退到 token 的默认数据源
+            if not datasource_name and auth_user.default_datasource_id:
+                target_datasource_id = auth_user.default_datasource_id
+
+            # 3. 如果通过 Header 指定了名称，解析为 UUID
+            if datasource_name and not target_datasource_id:
+                if datasource_service:
+                    ds = await datasource_service.get_datasource(datasource_name)
+                    if not ds:
+                        raise TokenDatasourceNotFoundError(
+                            f"数据源不存在: {datasource_name}"
+                        )
+                    if not ds.enabled:
+                        raise TokenDatasourceNotFoundError(
+                            f"数据源已禁用: {datasource_name}"
+                        )
+                    target_datasource_id = ds.id
+
+            # 4. 校验 token 是否有权限访问该 UUID
+            if target_datasource_id:
+                if str(target_datasource_id) not in auth_user.datasource_ids:
+                    raise AuthorizationError(
+                        f"Token 无权访问数据源 '{datasource_name}'"
+                    )
+                datasource_id = target_datasource_id
 
         datasource = DatasourceContext(datasource_id=datasource_id)
 

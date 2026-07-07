@@ -18,28 +18,9 @@ class TestMCPDKCallbackMockExecution:
     @pytest_asyncio.fixture
     async def mcp_service_instance(self, mock_settings):
         """创建 MCP 服务实例"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
-
-        yield service
+        yield make_mcp_service(mock_settings.server)
 
     async def test_list_resources_with_exception_in_middleware(
         self, mcp_service_instance, mock_mcp_provider
@@ -50,11 +31,11 @@ class TestMCPDKCallbackMockExecution:
         async def raise_exception(*args, **kwargs):
             raise RuntimeError("Simulated list resources error")
 
-        # 替换 middleaware_stack.on_list_resources
+        # 替换 middleware_stack.on_list_resources
         original_on_list_resources = (
-            mcp_service_instance.middleaware_stack.on_list_resources
+            mcp_service_instance.middleware_stack.on_list_resources
         )
-        mcp_service_instance.middleaware_stack.on_list_resources = raise_exception
+        mcp_service_instance.middleware_stack.on_list_resources = raise_exception
 
         try:
             # 调用 list_resources（模拟回调中的逻辑）
@@ -63,7 +44,7 @@ class TestMCPDKCallbackMockExecution:
             assert result == []
         finally:
             # 恢复原始方法
-            mcp_service_instance.middleaware_stack.on_list_resources = (
+            mcp_service_instance.middleware_stack.on_list_resources = (
                 original_on_list_resources
             )
 
@@ -75,8 +56,8 @@ class TestMCPDKCallbackMockExecution:
         async def raise_exception(*args, **kwargs):
             raise RuntimeError("Simulated list templates error")
 
-        original = mcp_service_instance.middleaware_stack.on_list_resource_templates
-        mcp_service_instance.middleaware_stack.on_list_resource_templates = (
+        original = mcp_service_instance.middleware_stack.on_list_resource_templates
+        mcp_service_instance.middleware_stack.on_list_resource_templates = (
             raise_exception
         )
 
@@ -84,7 +65,7 @@ class TestMCPDKCallbackMockExecution:
             result = await mcp_service_instance.list_resource_templates()
             assert result == []
         finally:
-            mcp_service_instance.middleaware_stack.on_list_resource_templates = original
+            mcp_service_instance.middleware_stack.on_list_resource_templates = original
 
     async def test_read_resource_with_exception(
         self, mcp_service_instance, mock_mcp_provider
@@ -119,14 +100,14 @@ class TestMCPDKCallbackMockExecution:
         async def raise_exception(*args, **kwargs):
             raise RuntimeError("Simulated list tools error")
 
-        original = mcp_service_instance.middleaware_stack.on_list_tools
-        mcp_service_instance.middleaware_stack.on_list_tools = raise_exception
+        original = mcp_service_instance.middleware_stack.on_list_tools
+        mcp_service_instance.middleware_stack.on_list_tools = raise_exception
 
         try:
             result = await mcp_service_instance.list_tools()
             assert result == []
         finally:
-            mcp_service_instance.middleaware_stack.on_list_tools = original
+            mcp_service_instance.middleware_stack.on_list_tools = original
 
     async def test_call_tool_with_exception(
         self, mcp_service_instance, mock_mcp_provider
@@ -168,14 +149,14 @@ class TestMCPDKCallbackMockExecution:
         async def raise_exception(*args, **kwargs):
             raise RuntimeError("Simulated list prompts error")
 
-        original = mcp_service_instance.middleaware_stack.on_list_prompts
-        mcp_service_instance.middleaware_stack.on_list_prompts = raise_exception
+        original = mcp_service_instance.middleware_stack.on_list_prompts
+        mcp_service_instance.middleware_stack.on_list_prompts = raise_exception
 
         try:
             result = await mcp_service_instance.list_prompts()
             assert result == []
         finally:
-            mcp_service_instance.middleaware_stack.on_list_prompts = original
+            mcp_service_instance.middleware_stack.on_list_prompts = original
 
     async def test_get_prompt_with_exception(
         self, mcp_service_instance, mock_mcp_provider
@@ -218,26 +199,9 @@ class TestMCPServiceExceptionHandlingDirect:
 
     async def test_read_resource_exception_returns_json_error(self, mock_settings):
         """测试 read_resource 异常返回 JSON 错误"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建一个会抛出异常的 provider
         provider = MagicMock()
@@ -264,26 +228,9 @@ class TestMCPServiceExceptionHandlingDirect:
 
     async def test_get_prompt_exception_returns_error_result(self, mock_settings):
         """测试 get_prompt 异常返回错误结果"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建一个会抛出异常的 provider
         provider = MagicMock()

@@ -1,0 +1,157 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[26579,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ImageZoom"]
+31:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+32:I[83987,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ToggleWordWrapButton"]
+33:I[40493,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"CopyToClipboard"]
+34:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+35:"$Sreact.suspense"
+5:T12cb,# 元数据管理
+
+元数据管理用于浏览数据库对象结构，控制 AI 可见的数据范围，并为数据库对象补充业务注释，帮助 AI 更准确地理解和使用数据库。
+
+![元数据管理页全貌，左侧对象树和右侧表格](/images/console/metadata-overview.png)
+
+## 页面布局
+
+元数据管理页采用三栏布局：
+
+- **左侧对象树** — 层级展示数据源 → Schema → 表/视图 → 列
+- **右侧对象表格** — 展示当前选中层级下的对象列表
+- **底部批量操作栏** — 选中多个对象后弹出，支持批量设置策略和注释
+
+## 浏览对象树
+
+点击左侧树形结构的节点，逐级展开数据库对象：
+
+```
+数据源名称
+├── 模式
+│   ├── 表
+│   └── 视图
+└── ...
+```
+
+点击某个节点后，右侧表格展示该层级下的所有对象。通过面包屑导航可以快速返回上级层级。
+
+![对象树展开到表级别](/images/console/metadata-tree-expanded.png)
+
+## 访问策略
+
+访问策略决定 AI 在调用 MCP 工具时能否"看到"某个数据库对象。每个对象（Schema、表、视图、列）都可以单独设置策略。
+
+### 三种策略的含义
+
+| 策略 | 效果 |
+|------|------|
+| **允许（allow）** | AI 可以访问该对象，MCP 元数据查询会将其包含在返回结果中 |
+| **拒绝（deny）** | AI 无法访问该对象，MCP 元数据查询会将其从返回结果中排除 |
+| **继承（inherit）** | 默认状态，继承上级对象的策略。Schema 继承自数据源，表/视图继承自 Schema，列继承自表 |
+
+### 设置策略
+
+在右侧表格的"访问策略"列中，点击下拉选择框即可为单个对象设置策略。
+
+![访问策略下拉选择](/images/console/metadata-policy-select.png)
+
+策略设置会实时生效：下一次 AI 客户端请求元数据时，MCP 服务会返回最新的可见对象集合。
+
+### 批量设置策略
+
+在右侧表格中勾选多个对象后，底部弹出批量操作栏。点击"批量允许"或"批量拒绝"可以一次性为选中的对象设置相同策略；点击"批量清空"则将其恢复为继承状态。
+
+![批量操作栏](/images/console/metadata-batch-bar.png)
+
+## 业务注释
+
+业务注释是你为数据库对象添加的可读描述，AI 客户端在获取元数据时会同时收到这些注释，从而更准确地理解表和列的业务含义。
+
+### 编辑注释
+
+在右侧表格的"注释"列中，点击编辑按钮打开注释对话框，输入描述后保存。
+
+### 注释与 CLI 帮助的约定
+
+编辑注释时建议遵守下面这一约定，它与本地 **dmctl** 展示帮助的方式一致：
+
+- **第一行**（从开头到第一个换行符为止）会作为该条目在 **CLI 工具列表**（例如执行 `dmctl --help` 时列出的各命令一行摘要）中的**简短说明**，适合写一句能概括用途的话，方便在终端里快速扫读、区分不同命令。
+- **整段注释**（第一行加上后续所有行）会出现在针对该命令的 **`--help`** 输出里，作为**完整说明**；第二行起可写参数含义、使用注意、典型场景等细节，避免把过长内容挤在第一行。
+
+因此：**首行尽量短而准，详细内容从第二行开始写**，列表里清爽，`--help` 里信息又够用。
+
+![注释编辑对话框](/images/console/metadata-comment-dialog.png)
+
+### 批量设置注释
+
+勾选多个对象后，使用底部批量操作栏的"批量注释"功能，可以为选中的对象统一添加相同的注释内容。
+
+### 注释生效方式
+
+业务注释通过 MCP 工具的元数据查询接口返回给 AI 客户端。当 AI 询问"数据库里有哪些表"或"这个字段是什么意思"时，MCP 服务会将你添加的注释作为对象描述的一部分返回。
+
+## 使用建议
+
+### 从粗到细控制可见范围
+
+建议先在大粒度（Schema 级别）设置策略，再针对特殊对象在细粒度（表或列级别）进行调整。例如：
+
+1. 将业务 Schema 设为"允许"，将系统/测试 Schema 设为"拒绝"
+2. 对于允许访问的 Schema 中的敏感表（如用户密码表），单独设为"拒绝"
+3. 对于允许访问的表中的敏感列（如身份证号列），单独设为"拒绝"
+
+### 为高频使用的对象添加注释
+
+优先为核心业务表和容易混淆的字段添加注释，例如：
+
+- 表名缩写含义不明确的表（如 `T_CUS_ORD` → "客户订单表"）
+- 业务含义与字段名不一致的列（如 `status` 字段的实际取值为 0/1/2，分别代表"待处理/处理中/已完成"）
+- 存在多个相似表时，说明各自的使用场景和区别
+
+### 定期审查
+
+随着数据库结构的演进，建议定期审查元数据管理中的策略和注释，确保其与当前业务保持一致。0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"页面布局","id":"页面布局","depth":2},{"value":"浏览对象树","id":"浏览对象树","depth":2},{"value":"访问策略","id":"访问策略","depth":2},{"value":"三种策略的含义","id":"三种策略的含义","depth":3},{"value":"设置策略","id":"设置策略","depth":3},{"value":"批量设置策略","id":"批量设置策略","depth":3},{"value":"业务注释","id":"业务注释","depth":2},{"value":"编辑注释","id":"编辑注释","depth":3},{"value":"注释与 CLI 帮助的约定","id":"注释与-cli-帮助的约定","depth":3},{"value":"批量设置注释","id":"批量设置注释","depth":3},{"value":"注释生效方式","id":"注释生效方式","depth":3},{"value":"使用建议","id":"使用建议","depth":2},{"value":"从粗到细控制可见范围","id":"从粗到细控制可见范围","depth":3},{"value":"为高频使用的对象添加注释","id":"为高频使用的对象添加注释","depth":3},{"value":"定期审查","id":"定期审查","depth":3}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"元数据管理","filePath":"content/console/metadata.mdx","timestamp":1778897187000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["元数据管理","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"元数据管理用于浏览数据库对象结构，控制 AI 可见的数据范围，并为数据库对象补充业务注释，帮助 AI 更准确地理解和使用数据库。"}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"元数据管理页全貌，左侧对象树和右侧表格","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/metadata-overview.0vdn48sz2gow9.png","width":1214,"height":356,"blurWidth":8,"blurHeight":2,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAACCAYAAABllJ3tAAAANUlEQVR42h2LQQ4AIAzC/P9zF+OckCHZDZp2RYQA6D3oFLypW6Xu1jFbJOe0ZIEWqcwcth18F5k+3vKprVIAAAAASUVORK5CYII="}}]}],"\n","$L7","\n","$L8","\n","$L9","\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c","\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e","\n","$L2f"]}]]}]]}]}],null,"$L30"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+7:["$","h2",null,{"id":"页面布局","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["页面布局",["$","$L31",null,{"id":"页面布局"}]]}]
+8:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"元数据管理页采用三栏布局："}]
+9:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"左侧对象树"}]," — 层级展示数据源 → Schema → 表/视图 → 列"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"右侧对象表格"}]," — 展示当前选中层级下的对象列表"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"底部批量操作栏"}]," — 选中多个对象后弹出，支持批量设置策略和注释"]}],"\n"]}]
+a:["$","h2",null,{"id":"浏览对象树","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["浏览对象树",["$","$L31",null,{"id":"浏览对象树"}]]}]
+b:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击左侧树形结构的节点，逐级展开数据库对象："}]
+c:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":["$undefined",["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-2","children":[["$","$L32",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],["$","$L33",null,{"className":""}]]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":["$","span",null,{"children":"数据源名称"}]}],"\n",["$","span",null,{"children":["$","span",null,{"children":"├── 模式"}]}],"\n",["$","span",null,{"children":["$","span",null,{"children":"│   ├── 表"}]}],"\n",["$","span",null,{"children":["$","span",null,{"children":"│   └── 视图"}]}],"\n",["$","span",null,{"children":["$","span",null,{"children":"└── ..."}]}]]}]]}]]}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"点击某个节点后，右侧表格展示该层级下的所有对象。通过面包屑导航可以快速返回上级层级。"}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"对象树展开到表级别","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/metadata-tree-expanded.0t.c~v3xxlkug.png","width":259,"height":395,"blurWidth":5,"blurHeight":8,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAICAYAAAAx8TU7AAAAX0lEQVR42mWOWwqAMAwEe/+LitC0SPpO7NpWBMXAhmSYjzXMAdtOiCmj1rpiVDuOcKJJxzOmj3taIUSo6g3nSimBiNBae8MMZv6bzjmIyNf03qOUsuwF52OtBY2UUekCU9WcSwDczxsAAAAASUVORK5CYII="}}]}]
+f:["$","h2",null,{"id":"访问策略","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["访问策略",["$","$L31",null,{"id":"访问策略"}]]}]
+10:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"访问策略决定 AI 在调用 MCP 工具时能否”看到”某个数据库对象。每个对象（Schema、表、视图、列）都可以单独设置策略。"}]
+11:["$","h3",null,{"id":"三种策略的含义","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["三种策略的含义",["$","$L31",null,{"id":"三种策略的含义"}]]}]
+12:["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"策略","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"效果","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","strong",null,{"children":"允许（allow）"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"AI 可以访问该对象，MCP 元数据查询会将其包含在返回结果中","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","strong",null,{"children":"拒绝（deny）"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"AI 无法访问该对象，MCP 元数据查询会将其从返回结果中排除","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","strong",null,{"children":"继承（inherit）"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"默认状态，继承上级对象的策略。Schema 继承自数据源，表/视图继承自 Schema，列继承自表","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]]}]
+13:["$","h3",null,{"id":"设置策略","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["设置策略",["$","$L31",null,{"id":"设置策略"}]]}]
+14:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"在右侧表格的”访问策略”列中，点击下拉选择框即可为单个对象设置策略。"}]
+15:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"访问策略下拉选择","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/metadata-policy-select.07sbmzkc2tz2o.png","width":128,"height":132,"blurWidth":8,"blurHeight":8,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAnElEQVR42m2PvQ7CMAyE8/4vhxhY6ITE0jSlSROn+XMOt3QBcdJnWfLJulM4RUQYRw2KEY0ZlRt6SlC9A13GsiwY7gOsc6i1IrUM9h5qSwVmdrBrRNzqAQkhZjEylHUBl+sNj6eGj/XA+oTp5T+GUuSDmeE9gbl/0dpp0OOIEAi/YgmrtkgS7g49mf+GnDOMHO3qUdpej49WvCP7G+4J+K7LGBH9AAAAAElFTkSuQmCC"}}]}]
+16:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"策略设置会实时生效：下一次 AI 客户端请求元数据时，MCP 服务会返回最新的可见对象集合。"}]
+17:["$","h3",null,{"id":"批量设置策略","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["批量设置策略",["$","$L31",null,{"id":"批量设置策略"}]]}]
+18:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"在右侧表格中勾选多个对象后，底部弹出批量操作栏。点击”批量允许”或”批量拒绝”可以一次性为选中的对象设置相同策略；点击”批量清空”则将其恢复为继承状态。"}]
+19:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"批量操作栏","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/metadata-batch-bar.17qgorf74-apv.png","width":984,"height":423,"blurWidth":8,"blurHeight":3,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAADCAYAAACuyE5IAAAATUlEQVR42iWMSQrAIBDA/P9HpVAUdZxFC6m0pxAISUMM80XpwbRNH/ZR/aGKk9zjSJBLnGhx3Z3SnCaLXJU0VVEzandEN2P68Y3Ff3gB8WZcy4+gL2IAAAAASUVORK5CYII="}}]}]
+1a:["$","h2",null,{"id":"业务注释","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["业务注释",["$","$L31",null,{"id":"业务注释"}]]}]
+1b:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"业务注释是你为数据库对象添加的可读描述，AI 客户端在获取元数据时会同时收到这些注释，从而更准确地理解表和列的业务含义。"}]
+1c:["$","h3",null,{"id":"编辑注释","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["编辑注释",["$","$L31",null,{"id":"编辑注释"}]]}]
+1d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"在右侧表格的”注释”列中，点击编辑按钮打开注释对话框，输入描述后保存。"}]
+1e:["$","h3",null,{"id":"注释与-cli-帮助的约定","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["注释与 CLI 帮助的约定",["$","$L31",null,{"id":"注释与-cli-帮助的约定"}]]}]
+1f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["编辑注释时建议遵守下面这一约定，它与本地 ",["$","strong",null,{"children":"dmctl"}]," 展示帮助的方式一致："]}]
+20:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"第一行"}],"（从开头到第一个换行符为止）会作为该条目在 ",["$","strong",null,{"children":"CLI 工具列表"}],"（例如执行 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"dmctl --help"}]," 时列出的各命令一行摘要）中的",["$","strong",null,{"children":"简短说明"}],"，适合写一句能概括用途的话，方便在终端里快速扫读、区分不同命令。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"整段注释"}],"（第一行加上后续所有行）会出现在针对该命令的 ",["$","strong",null,{"children":["$","code",null,{"className":"nextra-code","dir":"ltr","children":"--help"}]}]," 输出里，作为",["$","strong",null,{"children":"完整说明"}],"；第二行起可写参数含义、使用注意、典型场景等细节，避免把过长内容挤在第一行。"]}],"\n"]}]
+21:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["因此：",["$","strong",null,{"children":"首行尽量短而准，详细内容从第二行开始写"}],"，列表里清爽，",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"--help"}]," 里信息又够用。"]}]
+22:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"注释编辑对话框","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/metadata-comment-dialog.07hremsnchorq.png","width":520,"height":315,"blurWidth":8,"blurHeight":5,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAXklEQVR42m2MSw6AIAxEuf+5vIFnwBhc2VCgfDqWDYnGSd6s3ozzxwnvPUIIICKIyIKZ4W5iUExobaB3RR9YSO1ws1QVf6lTqLYcZn9p9kZsQkoZpciLXArOK2LbEx46t5wWX5I7LgAAAABJRU5ErkJggg=="}}]}]
+23:["$","h3",null,{"id":"批量设置注释","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["批量设置注释",["$","$L31",null,{"id":"批量设置注释"}]]}]
+24:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"勾选多个对象后，使用底部批量操作栏的”批量注释”功能，可以为选中的对象统一添加相同的注释内容。"}]
+25:["$","h3",null,{"id":"注释生效方式","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["注释生效方式",["$","$L31",null,{"id":"注释生效方式"}]]}]
+26:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"业务注释通过 MCP 工具的元数据查询接口返回给 AI 客户端。当 AI 询问”数据库里有哪些表”或”这个字段是什么意思”时，MCP 服务会将你添加的注释作为对象描述的一部分返回。"}]
+27:["$","h2",null,{"id":"使用建议","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["使用建议",["$","$L31",null,{"id":"使用建议"}]]}]
+28:["$","h3",null,{"id":"从粗到细控制可见范围","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["从粗到细控制可见范围",["$","$L31",null,{"id":"从粗到细控制可见范围"}]]}]
+29:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"建议先在大粒度（Schema 级别）设置策略，再针对特殊对象在细粒度（表或列级别）进行调整。例如："}]
+2a:["$","ol",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-decimal x:ms-6","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"将业务 Schema 设为”允许”，将系统/测试 Schema 设为”拒绝”"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"对于允许访问的 Schema 中的敏感表（如用户密码表），单独设为”拒绝”"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"对于允许访问的表中的敏感列（如身份证号列），单独设为”拒绝”"}],"\n"]}]
+2b:["$","h3",null,{"id":"为高频使用的对象添加注释","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["为高频使用的对象添加注释",["$","$L31",null,{"id":"为高频使用的对象添加注释"}]]}]
+2c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"优先为核心业务表和容易混淆的字段添加注释，例如："}]
+2d:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":["表名缩写含义不明确的表（如 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"T_CUS_ORD"}]," → “客户订单表”）"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":["业务含义与字段名不一致的列（如 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"status"}]," 字段的实际取值为 0/1/2，分别代表”待处理/处理中/已完成”）"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"存在多个相似表时，说明各自的使用场景和区别"}],"\n"]}]
+2e:["$","h3",null,{"id":"定期审查","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["定期审查",["$","$L31",null,{"id":"定期审查"}]]}]
+2f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"随着数据库结构的演进，建议定期审查元数据管理中的策略和注释，确保其与当前业务保持一致。"}]
+30:["$","$L34",null,{"children":["$","$35",null,{"name":"Next.MetadataOutlet","children":"$@36"}]}]
+36:null

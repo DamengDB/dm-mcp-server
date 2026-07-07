@@ -1,0 +1,107 @@
+1:"$Sreact.fragment"
+2:I[55169,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"TOCProvider"]
+3:I[769,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"Sidebar"]
+4:I[47486,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ClientWrapper"]
+6:I[26579,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"ImageZoom"]
+7:I[63894,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"HeadingAnchor"]
+22:I[22016,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],""]
+23:I[97367,["/dm-mcp/docs/_next/static/chunks/0ahxf~9hnti_5.js","/dm-mcp/docs/_next/static/chunks/0vfa81omuhnh1.js","/dm-mcp/docs/_next/static/chunks/14jlix.31o1d6.js","/dm-mcp/docs/_next/static/chunks/03jqkdt1oex0i.js","/dm-mcp/docs/_next/static/chunks/0_vk61jhy1lh5.js"],"OutletBoundary"]
+24:"$Sreact.suspense"
+5:Tfb3,# 功能简介
+
+达梦 MCP 提供基于 Web 的控制台，用于管理数据库连接、访问权限和元数据配置。
+登录控制台后，左侧导航栏提供四项核心功能模块。本文档按模块分别说明其用途与操作方式。
+
+![控制台首页全貌，左侧导航栏高亮四项功能](/images/console/console-overview.png)
+
+## 功能模块总览
+
+| 模块 | 用途 | 典型操作 |
+|------|------|---------|
+| [控制台首页](./dashboard) | 查看系统整体状态，获取服务连接信息 | 查看统计卡片、复制 MCP 服务地址、CLI 工具服务地址和 JWT 令牌 |
+| [数据源管理](./datasource) | 配置达梦数据库连接 | 添加、编辑、测试、启用/禁用数据源 |
+| [远程主机管理](./ssh-host) | 配置 SSH 远程主机 | 添加、编辑、删除 SSH 主机 |
+| [令牌管理](./token) | 管理 AI 客户端访问凭证 | 创建、更新、删除访问令牌，控制数据可见范围 |
+| [元数据管理](./metadata) | 控制 AI 可见的数据库对象并补充业务注释 | 设置访问策略、编辑注释 |
+
+## 核心概念
+
+使用控制台之前，建议先理解以下五个核心概念及其相互关系。
+
+### 数据源
+
+**数据源**是指向一个达梦数据库实例的连接配置，包含主机地址、端口、用户名、密码以及连接池参数。
+
+达梦 MCP 的所有数据库操作（查询、巡检、元数据读取等）都通过数据源建立连接后执行。你可以配置多个数据源，分别指向不同的数据库实例或集群。
+
+每个数据源都可以独立启用或禁用。禁用的数据源不会被 MCP 工具使用，但配置信息仍然保留。
+
+### 远程主机（SSH）
+
+**远程主机**是可通过 SSH 协议访问的服务器节点。达梦 MCP 中的部分场景需要直接操作数据库所在主机（例如执行主机级诊断命令），此时需要先配置 SSH 连接信息。
+
+远程主机配置完成后，可以在**令牌管理**中将其与特定访问令牌绑定，从而限制该令牌只能访问指定的主机。
+
+### 访问令牌
+
+**访问令牌**是 AI 客户端（如 Claude Code）调用 MCP 服务时使用的身份凭证。它与控制台登录用的 JWT 令牌不同：
+
+- **JWT 令牌** — 用于登录 Web 控制台，由 OAuth 或管理员认证颁发，具有会话有效期。
+- **访问令牌** — 用于 MCP 工具调用，在 AI 客户端配置中使用，可长期有效或设置过期时间。
+
+通过令牌管理，你可以精细控制每个令牌的权限范围：
+
+- 允许访问哪些数据源
+- 默认使用哪个数据源
+- 允许从哪些 IP 地址发起请求（白名单）
+- 禁止从哪些 IP 地址发起请求（黑名单）
+- 可以访问哪些 SSH 主机
+
+### 元数据
+
+**元数据**是数据库对象的结构信息，包括 Schema、表、视图、列以及它们的属性。达梦 MCP 的元数据管理不仅提供浏览功能，更重要的是允许你为数据库对象补充**业务注释**。
+
+业务注释直接影响 AI 对数据库的理解。例如，为名为 `T_SALES` 的表添加注释"销售订单主表，包含订单头信息"后，AI 在生成查询时能更准确地选择正确的表和字段。
+
+### 访问策略
+
+**访问策略**决定 AI 是否可以"看到"某个数据库对象。每个对象（Schema、表、视图、列）都可以单独设置策略：
+
+- **允许（allow）** — AI 可以访问该对象，MCP 工具会将其包含在返回的元数据中。
+- **拒绝（deny）** — AI 无法访问该对象，MCP 工具会将其从返回结果中排除。
+- **继承（inherit）** — 默认状态，继承上级对象的策略。例如，表的策略继承自所在 Schema，列的策略继承自所在表。
+
+通过访问策略，你可以精确控制 AI 可见的数据范围，避免敏感表或列被意外暴露。
+
+## 下一步
+
+- 了解 [控制台首页](./dashboard) 的信息布局
+- 学习如何配置 [数据源](./datasource)
+- 了解如何创建和管理 [访问令牌](./token)0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[{"value":"功能模块总览","id":"功能模块总览","depth":2},{"value":"核心概念","id":"核心概念","depth":2},{"value":"数据源","id":"数据源","depth":3},{"value":"远程主机（SSH）","id":"远程主机ssh","depth":3},{"value":"访问令牌","id":"访问令牌","depth":3},{"value":"元数据","id":"元数据","depth":3},{"value":"访问策略","id":"访问策略","depth":3},{"value":"下一步","id":"下一步","depth":2}],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"功能简介","filePath":"content/console/index.mdx","timestamp":1778897187000},"sourceCode":"$5","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["功能简介","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"达梦 MCP 提供基于 Web 的控制台，用于管理数据库连接、访问权限和元数据配置。\n登录控制台后，左侧导航栏提供四项核心功能模块。本文档按模块分别说明其用途与操作方式。"}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["$","$L6",null,{"alt":"控制台首页全貌，左侧导航栏高亮四项功能","placeholder":"blur","src":{"src":"/dm-mcp/docs/_next/static/media/console-overview.0kaaak6v3yvq7.png","width":1192,"height":775,"blurWidth":8,"blurHeight":5,"blurDataURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAVUlEQVR42kWMQQ4AIQgD/f9fTTwpItClYrImo6YdaGMMiAh675c5F9wdHgGeds6BZaD53iKJLJldgRfDtRYos+RwESXwU4I9oeBgM7O3QbC3QvWHGz+kx52A8KK+hAAAAABJRU5ErkJggg=="}}]}],"\n",["$","h2",null,{"id":"功能模块总览","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["功能模块总览",["$","$L7",null,{"id":"功能模块总览"}]]}],"\n",["$","table",null,{"className":"x:block x:overflow-x-auto nextra-scrollbar x:not-first:mt-[1.25em] x:p-0","children":[["$","thead",null,{"children":"$L8"}],"$L9"]}],"\n","$La","\n","$Lb","\n","$Lc","\n","$Ld","\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17","\n","$L18","\n","$L19","\n","$L1a","\n","$L1b","\n","$L1c","\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20"]}]]}]]}]}],null,"$L21"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"wPI8mSHamwqOBt5-JNX8s"}
+8:["$","tr",null,{"children":[["$","th",null,{"children":"模块","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"用途","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}],["$","th",null,{"children":"典型操作","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:font-semibold x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]
+9:["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","$L22",null,{"href":"./dashboard","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"控制台首页"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"查看系统整体状态，获取服务连接信息","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"查看统计卡片、复制 MCP 服务地址、CLI 工具服务地址和 JWT 令牌","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L22",null,{"href":"./datasource","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"数据源管理"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"配置达梦数据库连接","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"添加、编辑、测试、启用/禁用数据源","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L22",null,{"href":"./ssh-host","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"远程主机管理"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"配置 SSH 远程主机","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"添加、编辑、删除 SSH 主机","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L22",null,{"href":"./token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"令牌管理"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"管理 AI 客户端访问凭证","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"创建、更新、删除访问令牌，控制数据可见范围","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L22",null,{"href":"./metadata","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"元数据管理"}],"className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"控制 AI 可见的数据库对象并补充业务注释","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}],["$","td",null,{"children":"设置访问策略、编辑注释","className":"x:m-0 x:border x:border-gray-300 x:px-4 x:py-2 x:dark:border-gray-600"}]],"className":"x:m-0 x:border-t x:border-gray-300 x:p-0 x:dark:border-gray-600 x:even:bg-gray-100 x:even:dark:bg-gray-600/20"}]]}]
+a:["$","h2",null,{"id":"核心概念","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["核心概念",["$","$L7",null,{"id":"核心概念"}]]}]
+b:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"使用控制台之前，建议先理解以下五个核心概念及其相互关系。"}]
+c:["$","h3",null,{"id":"数据源","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["数据源",["$","$L7",null,{"id":"数据源"}]]}]
+d:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"数据源"}],"是指向一个达梦数据库实例的连接配置，包含主机地址、端口、用户名、密码以及连接池参数。"]}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"达梦 MCP 的所有数据库操作（查询、巡检、元数据读取等）都通过数据源建立连接后执行。你可以配置多个数据源，分别指向不同的数据库实例或集群。"}]
+f:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"每个数据源都可以独立启用或禁用。禁用的数据源不会被 MCP 工具使用，但配置信息仍然保留。"}]
+10:["$","h3",null,{"id":"远程主机ssh","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["远程主机（SSH）",["$","$L7",null,{"id":"远程主机ssh"}]]}]
+11:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"远程主机"}],"是可通过 SSH 协议访问的服务器节点。达梦 MCP 中的部分场景需要直接操作数据库所在主机（例如执行主机级诊断命令），此时需要先配置 SSH 连接信息。"]}]
+12:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["远程主机配置完成后，可以在",["$","strong",null,{"children":"令牌管理"}],"中将其与特定访问令牌绑定，从而限制该令牌只能访问指定的主机。"]}]
+13:["$","h3",null,{"id":"访问令牌","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["访问令牌",["$","$L7",null,{"id":"访问令牌"}]]}]
+14:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"访问令牌"}],"是 AI 客户端（如 Claude Code）调用 MCP 服务时使用的身份凭证。它与控制台登录用的 JWT 令牌不同："]}]
+15:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"JWT 令牌"}]," — 用于登录 Web 控制台，由 OAuth 或管理员认证颁发，具有会话有效期。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"访问令牌"}]," — 用于 MCP 工具调用，在 AI 客户端配置中使用，可长期有效或设置过期时间。"]}],"\n"]}]
+16:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"通过令牌管理，你可以精细控制每个令牌的权限范围："}]
+17:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":"允许访问哪些数据源"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"默认使用哪个数据源"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"允许从哪些 IP 地址发起请求（白名单）"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"禁止从哪些 IP 地址发起请求（黑名单）"}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":"可以访问哪些 SSH 主机"}],"\n"]}]
+18:["$","h3",null,{"id":"元数据","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["元数据",["$","$L7",null,{"id":"元数据"}]]}]
+19:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"元数据"}],"是数据库对象的结构信息，包括 Schema、表、视图、列以及它们的属性。达梦 MCP 的元数据管理不仅提供浏览功能，更重要的是允许你为数据库对象补充",["$","strong",null,{"children":"业务注释"}],"。"]}]
+1a:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["业务注释直接影响 AI 对数据库的理解。例如，为名为 ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"T_SALES"}]," 的表添加注释”销售订单主表，包含订单头信息”后，AI 在生成查询时能更准确地选择正确的表和字段。"]}]
+1b:["$","h3",null,{"id":"访问策略","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-8 x:text-2xl","children":["访问策略",["$","$L7",null,{"id":"访问策略"}]]}]
+1c:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":[["$","strong",null,{"children":"访问策略"}],"决定 AI 是否可以”看到”某个数据库对象。每个对象（Schema、表、视图、列）都可以单独设置策略："]}]
+1d:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"允许（allow）"}]," — AI 可以访问该对象，MCP 工具会将其包含在返回的元数据中。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"拒绝（deny）"}]," — AI 无法访问该对象，MCP 工具会将其从返回结果中排除。"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":[["$","strong",null,{"children":"继承（inherit）"}]," — 默认状态，继承上级对象的策略。例如，表的策略继承自所在 Schema，列的策略继承自所在表。"]}],"\n"]}]
+1e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"通过访问策略，你可以精确控制 AI 可见的数据范围，避免敏感表或列被意外暴露。"}]
+1f:["$","h2",null,{"id":"下一步","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["下一步",["$","$L7",null,{"id":"下一步"}]]}]
+20:["$","ul",null,{"className":"x:[:is(ol,ul)_&]:my-[.75em] x:not-first:mt-[1.25em] x:list-disc x:ms-[1.5em]","children":["\n",["$","li",null,{"className":"x:my-[.5em]","children":["了解 ",["$","$L22",null,{"href":"./dashboard","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"控制台首页"}]," 的信息布局"]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":["学习如何配置 ",["$","$L22",null,{"href":"./datasource","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"数据源"}]]}],"\n",["$","li",null,{"className":"x:my-[.5em]","children":["了解如何创建和管理 ",["$","$L22",null,{"href":"./token","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"访问令牌"}]]}],"\n"]}]
+21:["$","$L23",null,{"children":["$","$24",null,{"name":"Next.MetadataOutlet","children":"$@25"}]}]
+25:null

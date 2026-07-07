@@ -17,59 +17,53 @@ class TestMCPServiceWorkflow:
     @pytest_asyncio.fixture
     async def mcp_service_instance(self, mock_settings):
         """创建 MCP 服务实例"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
-
-        yield service
+        yield make_mcp_service(mock_settings.server)
 
     @pytest_asyncio.fixture
     def mock_provider(self):
-        """创建 Mock Provider"""
+        """创建 Mock Provider（tools_map / _static_resources / prompts_map 与合并视图一致）"""
         provider = MagicMock()
         provider.name = "test_provider"
 
-        # 设置工具列表
         mock_tool = MagicMock()
         mock_tool.name = "calculate_sum"
         mock_tool.description = "Calculate sum of two numbers"
+        mock_tool_def = MagicMock()
+        mock_tool_def.short_description = "Calculate sum of two numbers"
+        mock_tool_def.long_description = "Calculate sum of two numbers"
+        mock_tool_def.apply_metadata_override.return_value.to_tool.return_value = (
+            mock_tool
+        )
         provider.list_tools.return_value = [mock_tool]
 
-        # 设置资源列表
         mock_resource = MagicMock()
         mock_resource.uri = "test://resource1"
+        mock_resource_def = MagicMock()
+        mock_resource_def.name = "resource1"
+        mock_resource_def.uri = "test://resource1"
+        mock_resource_def.apply_metadata_override.return_value.to_resource.return_value = (
+            mock_resource
+        )
         provider.list_resources.return_value = [mock_resource]
 
-        # 设置资源模板
         mock_template = MagicMock()
         mock_template.uriTemplate = "users://{user_id}/profile"
         provider.list_resource_templates.return_value = [mock_template]
 
-        # 设置提示列表
-        mock_prompt = MagicMock()
-        mock_prompt.name = "greeting"
-        provider.list_prompts.return_value = [mock_prompt]
+        mock_prompt_def = MagicMock()
+        mock_prompt_def.name = "greeting"
+        mock_prompt_def.short_description = "greeting"
+        mock_prompt_def.long_description = "greeting"
+        mock_prompt_def.arguments = []
+        provider.list_prompts.return_value = [mock_prompt_def]
 
-        # 设置 mcp 属性
         provider.mcp = MagicMock()
-        provider.mcp.tools_map = {"calculate_sum": mock_tool}
+        provider.mcp.tools_map = {"calculate_sum": mock_tool_def}
+        provider.mcp._static_resources = {"test://resource1": mock_resource_def}
+        provider.mcp._template_resources = []
+        provider.mcp.prompts_map = {"greeting": mock_prompt_def}
 
         return provider
 
@@ -179,26 +173,9 @@ class TestMCPProviderRegistration:
 
     async def test_multiple_providers_registration(self, mock_settings):
         """测试多个 Provider 注册"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建多个 Provider
         provider1 = MagicMock()
@@ -228,26 +205,9 @@ class TestMCPResourceMapping:
 
     async def test_resource_uri_mapping(self, mock_settings):
         """测试资源 URI 映射"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建带资源的 Provider
         provider = MagicMock()
@@ -264,26 +224,9 @@ class TestMCPResourceMapping:
 
     async def test_template_uri_mapping(self, mock_settings):
         """测试模板 URI 映射"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建带模板的 Provider
         provider = MagicMock()
@@ -306,26 +249,9 @@ class TestMCPToolMapping:
 
     async def test_tool_provider_mapping(self, mock_settings):
         """测试工具到 Provider 的映射"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建带工具的 Provider
         provider = MagicMock()
@@ -353,26 +279,9 @@ class TestMCPErrorHandlingIntegration:
 
     async def test_tool_execution_error(self, mock_settings):
         """测试工具执行错误"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建会抛出异常的 Provider
         provider = MagicMock()
@@ -394,26 +303,9 @@ class TestMCPErrorHandlingIntegration:
 
     async def test_resource_read_error(self, mock_settings):
         """测试资源读取错误"""
-        from dm_mcp.services.mcp_service import MCPService
+        from tests.integration.conftest import make_mcp_service
 
-        mock_metrics = MagicMock()
-        mock_metrics.startup = AsyncMock()
-        mock_metrics.shutdown = AsyncMock()
-
-        mock_datasource = MagicMock()
-        mock_datasource.startup = AsyncMock()
-        mock_datasource.shutdown = AsyncMock()
-
-        mock_logging = MagicMock()
-        mock_logging.startup = AsyncMock()
-        mock_logging.shutdown = AsyncMock()
-
-        service = MCPService(
-            mock_settings.server,
-            mock_metrics,
-            mock_datasource,
-            mock_logging,
-        )
+        service = make_mcp_service(mock_settings.server)
 
         # 创建会抛出异常的 Provider
         provider = MagicMock()

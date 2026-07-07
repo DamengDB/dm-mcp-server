@@ -7,8 +7,8 @@ import pytest
 import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from dm_mcp.core.cache.backend import BaseCacheBackend
-from dm_mcp.core.cache.memory_backend import MemoryBackend
+from dm_mcp.infra.cache.backend import BaseCacheBackend
+from dm_mcp.infra.cache.memory_backend import MemoryBackend
 
 
 @pytest.mark.integration

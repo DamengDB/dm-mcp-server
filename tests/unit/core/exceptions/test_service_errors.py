@@ -67,7 +67,7 @@ class TestServiceCircularDependencyError:
         """测试只带服务名称"""
         error = ServiceCircularDependencyError("service_a")
         assert "service_a" in error.message
-        assert "circular dependency" in error.message.lower()
+        assert "循环依赖" in error.message
         assert error.error_code == "SERVICE_CIRCULAR_DEPENDENCY"
         assert error.status_code == 503
         assert error.details["service"] == "service_a"
@@ -77,7 +77,7 @@ class TestServiceCircularDependencyError:
         error = ServiceCircularDependencyError(
             "service_a", path="service_b -> service_c -> service_a"
         )
-        assert "path" in error.message.lower() or "service_b" in error.message
+        assert "路径" in error.message or "service_b" in error.message
 
     def test_status_code_503(self):
         """测试状态码为 503"""

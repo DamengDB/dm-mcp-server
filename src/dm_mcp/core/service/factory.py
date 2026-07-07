@@ -7,7 +7,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol, Type
 
 if TYPE_CHECKING:
-    from dm_mcp.settings.settings import Settings
+    from dm_mcp.core.events.subscription import EventSubscription
+    from dm_mcp.infra.config.settings import Settings
 
 
 @dataclass
@@ -18,6 +19,8 @@ class ServiceMetadata:
         name: 服务名称，必须唯一
         service_type: 服务类型
         dependencies: 依赖的服务名称列表
+        event_subscriptions: 声明式事件订阅元数据列表(可选)，启动时由
+            GlobalContext 反射绑定到 EventService
         singleton: 是否为单例（默认 True）
         enabled: 是否启用该服务（默认 True）
         lazy: 是否懒加载（默认 False，立即创建）
@@ -39,6 +42,7 @@ class ServiceMetadata:
     name: str
     service_type: Type
     dependencies: list[str] = field(default_factory=list)
+    event_subscriptions: list["EventSubscription"] = field(default_factory=list)
     singleton: bool = True
     enabled: bool = True
     lazy: bool = False

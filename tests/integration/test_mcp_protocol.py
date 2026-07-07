@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from dm_mcp.server import MCPServer
+from dm_mcp.app.server import MCPServer
 from tests.conftest import mock_settings
 
 

@@ -10,6 +10,8 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
+from dm_mcp.common import messages
+
 _auth_context_var = contextvars.ContextVar[Optional["AuthContext"]](
     "mcp_auth_context", default=None
 )
@@ -25,7 +27,7 @@ class AuthContext(BaseModel):
     user_id: str = Field(default="anonymous")
     login_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_activity: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    token: Optional[str] = Field(None, description="使用的 Token")
+    token: str | None = Field(None, description="使用的 Token")
     auth_type: Literal["oauth", "token", "basic_auth", "anonymous"] = Field(
         default="anonymous", description="认证类型"
     )
@@ -42,7 +44,7 @@ class AuthContext(BaseModel):
         """
         res = _auth_context_var.get()
         if res is None:
-            raise ValueError("No auth context set")
+            raise ValueError(messages.MSG_AUTH_NO_AUTH_CONTEXT)
         return res
 
     @classmethod

@@ -3,7 +3,9 @@
 提供参数验证相关的异常类定义，包括参数无效、缺少参数等异常。
 """
 
-from typing import Any, Dict, List
+from typing import Any
+
+from dm_mcp.common import messages
 from .base_error import DmMCPError
 
 
@@ -15,17 +17,10 @@ class ValidationError(DmMCPError):
 
     def __init__(
         self,
-        message: str = "Validation failed",
-        errors: List[Dict[str, Any]] | None = None,
+        message: str = messages.MSG_VALIDATION_FAILED,
+        errors: list[dict[str, Any]] | None = None,
         **kwargs,
     ):
-        """初始化验证异常
-
-        Args:
-            message: 错误消息（默认"Validation failed"）
-            errors: 错误详情列表（可选）
-            **kwargs: 其他参数传递给基类
-        """
         error_code = kwargs.pop("error_code", "VALIDATION_ERROR")
         status_code = kwargs.pop("status_code", 400)
         super().__init__(
@@ -42,14 +37,7 @@ class InvalidParameterError(ValidationError):
     """
 
     def __init__(self, parameter: str, reason: str | None = None, **kwargs):
-        """初始化参数无效异常
-
-        Args:
-            parameter: 参数名称
-            reason: 无效原因（可选）
-            **kwargs: 其他参数传递给基类
-        """
-        message = f"Invalid parameter: {parameter}"
+        message = messages.MSG_INVALID_PARAMETER.format(parameter=parameter)
         if reason:
             message += f" ({reason})"
         super().__init__(
@@ -65,14 +53,8 @@ class MissingParameterError(ValidationError):
     """
 
     def __init__(self, parameter: str, **kwargs):
-        """初始化缺少参数异常
-
-        Args:
-            parameter: 缺失的参数名称
-            **kwargs: 其他参数传递给基类
-        """
         super().__init__(
-            message=f"Missing required parameter: {parameter}",
+            message=messages.MSG_MISSING_PARAMETER.format(parameter=parameter),
             error_code="MISSING_PARAMETER",
             status_code=400,
             **kwargs,

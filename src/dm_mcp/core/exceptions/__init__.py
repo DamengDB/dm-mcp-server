@@ -7,10 +7,17 @@ from .auth_errors import (
     AuthenticationError,
     AuthorizationError,
     InvalidTokenError,
+    IpNotAllowedError,
     OAuthError,
+    TokenDatasourceNotFoundError,
     TokenExpiredError,
 )
 from .base_error import DmMCPError
+from .event_errors import (
+    EventServiceError,
+    HandlerSyncError,
+    PublishStrictError,
+)
 from .db_errors import (
     ConnectionPoolError,
     DatabaseError,
@@ -18,10 +25,19 @@ from .db_errors import (
     QueryExecutionError,
 )
 from .provider_errors import (
-    MCPProviderDependencyError,
+    CliGroupConflictError,
+    CliGroupMissingForToolsError,
+    CliGroupNotFoundError,
+    CliGroupPathInUseError,
+    CommandTreeConflictError,
+    MCPExecutionError,
     MCPProviderError,
     MCPProviderLoadError,
     MCPProviderNotFoundError,
+    ToolNotFoundError,
+    ToolMetadataConflictError,
+    ResourceNotFoundError,
+    PromptNotFoundError,
 )
 from .service_errors import (
     ServiceCircularDependencyError,
@@ -44,6 +60,8 @@ __all__ = [
     "TokenExpiredError",
     "InvalidTokenError",
     "OAuthError",
+    "IpNotAllowedError",
+    "TokenDatasourceNotFoundError",
     # Database
     "DatabaseError",
     "ConnectionPoolError",
@@ -53,11 +71,24 @@ __all__ = [
     "MCPProviderError",
     "MCPProviderLoadError",
     "MCPProviderNotFoundError",
-    "MCPProviderDependencyError",
+    "MCPExecutionError",
+    "CliGroupNotFoundError",
+    "CliGroupPathInUseError",
+    "CliGroupMissingForToolsError",
+    "CliGroupConflictError",
+    "CommandTreeConflictError",
+    "ToolNotFoundError",
+    "ToolMetadataConflictError",
+    "ResourceNotFoundError",
+    "PromptNotFoundError",
     # Service
     "ServiceError",
     "ServiceNotFoundError",
     "ServiceCircularDependencyError",
+    # Events
+    "EventServiceError",
+    "HandlerSyncError",
+    "PublishStrictError",
     # Transport
     "TransportError",
     "TransportConfigError",
